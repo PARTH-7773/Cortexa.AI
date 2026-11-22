@@ -1,39 +1,30 @@
-// import { useSelector } from "react-redux";
-// import { Navigate, Outlet, useLocation } from "react-router-dom";
-// import { selectAuthInitialized, selectIsAuthenticated } from "@/features/auth/authSlice";
-
-// function Protectedroute({ children }) {
-//   const isAuthenticated = useSelector(selectIsAuthenticated);
-//   const initialized = useSelector(selectAuthInitialized);
-//   const location = useLocation();
-
-//   if (!initialized) {
-//     return <div className="p-10 text-center">Loading...</div>;
-//   }
-
-//   if (!isAuthenticated) {
-//     return <Navigate to="/login" replace state={{ from: location }} />;
-//   }
-
-//   return { children }
-// }
-
-// export default Protectedroute;
-
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Navigate, Outlet } from "react-router-dom";
 import {
   selectAuthInitialized,
+  selectAuthLoading,
   selectIsAuthenticated,
 } from "@/features/auth/authSlice";
+import CortexaLoader from "./CortexaLoader";
 
-function Protectedroute({children}) {
+export default function Protectedroute({ children }) {
+  const location = useLocation();
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const loading = useSelector(selectAuthLoading);
   const initialized = useSelector(selectAuthInitialized);
 
-  if (!initialized) return <div className="p-10 text-center">Loading...</div>;
-  if (!isAuthenticated) return <Navigate to={"/login"} replace />;
-  return {children};
-}
+  if (initialized || loading) {
+    return (
+      <CortexaLoader
+        label="Verifying session"
+        sublabel="Checking your credentials..."
+      />
+    );
+  }
 
-export default Protectedroute;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children ? children : <Outlet />;
+}
