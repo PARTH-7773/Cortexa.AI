@@ -13,7 +13,7 @@ export default function Protectedroute({ children }) {
   const loading = useSelector(selectAuthLoading);
   const initialized = useSelector(selectAuthInitialized);
 
-  if (initialized || loading) {
+  if (!initialized || loading) {
     return (
       <CortexaLoader
         label="Verifying session"
