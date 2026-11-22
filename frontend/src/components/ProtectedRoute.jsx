@@ -5,7 +5,6 @@ import {
   selectAuthLoading,
   selectIsAuthenticated,
 } from "@/features/auth/authSlice";
-import CortexaLoader from "./CortexaLoader";
 
 export default function Protectedroute({ children }) {
   const location = useLocation();
@@ -14,17 +13,12 @@ export default function Protectedroute({ children }) {
   const initialized = useSelector(selectAuthInitialized);
 
   if (!initialized || loading) {
-    return (
-      <CortexaLoader
-        label="Verifying session"
-        sublabel="Checking your credentials..."
-      />
-    );
+    return null;
   }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return children ? children : <Outlet />;
+  return children ? { children } : <Outlet />;
 }
