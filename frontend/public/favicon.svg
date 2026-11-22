@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <circle cx="512" cy="512" r="496" fill="#090A0D" stroke="#27272A" stroke-width="16" />
+  <g transform="translate(0, 172)">
+    <defs>
+      <mask id="fav-cutouts">
+        <rect width="1024" height="680" fill="white" />
+        <circle cx="536" cy="368" r="118" fill="black" />
+        <rect x="640" y="302" width="160" height="128" fill="black" />
+        <path d="M668 232 C725 190, 785 160, 835 152" stroke="black" stroke-width="38" stroke-linecap="round" />
+        <path d="M276 472 C368 456, 472 424, 566 382" stroke="black" stroke-width="34" stroke-linecap="round" />
+      </mask>
+    </defs>
+    <circle cx="536" cy="368" r="224" fill="#FFFFFF" mask="url(#fav-cutouts)" />
+    <path d="M648 112 C764 46, 868 42, 902 88 C934 132, 876 226, 756 306 L728 306 C834 228, 874 146, 846 110 C818 76, 736 82, 648 112 Z" fill="#FFFFFF" />
+    <path d="M296 278 C136 376, 44 474, 66 534 C88 594, 242 562, 434 474 C488 448, 536 420, 568 394 C522 414, 464 434, 404 452 C256 496, 146 504, 130 462 C116 424, 184 356, 296 278 Z" fill="#FFFFFF" />
+    <path d="M652 326 H734 L792 276 H906" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="928" cy="276" r="21" stroke="#FFFFFF" stroke-width="17" />
+    <path d="M618 366 H744 L802 332 H902" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="924" cy="332" r="21" stroke="#FFFFFF" stroke-width="17" />
+    <path d="M634 404 H752 L794 388 H878" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="900" cy="388" r="21" stroke="#FFFFFF" stroke-width="17" />
+  </g>
+</svg>
