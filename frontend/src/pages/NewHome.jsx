@@ -27,6 +27,8 @@ function NewHome() {
   const { user } = useSelector((state) => state.auth);
   const { messages } = useSelector((state) => state.chat);
 
+  console.log(messages);
+
   const menuContent =
     "rounded-2xl border border-white/10 bg-[#1d2026]/95 p-1.5 text-zinc-100 shadow-2xl shadow-black/50 backdrop-blur-xl";
 
@@ -39,6 +41,9 @@ function NewHome() {
 
   const hideScrollbar =
     "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+
+  const darkPanel =
+    "border border-white/10 bg-white/[0.04] shadow-[0_20px_60px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl";
 
   async function handleLogout() {
     try {
@@ -182,7 +187,7 @@ function NewHome() {
           <section className="flex min-h-0 flex-1 flex-col">
             <div className={`min-h-0 flex-1 overflow-y-auto ${hideScrollbar}`}>
               <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-5 py-8 sm:px-6">
-                {messages.length < 1 && (
+                {messages.length === 0 && (
                   <div className="flex flex-1 flex-col items-center justify-center pb-8 text-center">
                     <div className="mb-2 grid size-20 place-items-center">
                       <img
@@ -203,6 +208,25 @@ function NewHome() {
                     </p>
                   </div>
                 )}
+
+                {messages.map((message, i) => (
+                  <div
+                    key={i}
+                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    {message.role === "assistant" && (
+                      <div className="mr-3 mt-1 grid size-8 shrink-0 place-items-center rounded-lg bg-white text-zinc-900">
+                        <Workflow size={15} />
+                      </div>
+                    )}
+
+                    <div
+                      className={`max-w-[90%] wrap-break-word px-4 py-3 text-sm leading-7 sm:max-w-[80%] ${message.role === "user" ? `rounded-2xl rounded-br-md text-white ${darkPanel}` : "text-zinc-200"}`}
+                    >
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </section>
