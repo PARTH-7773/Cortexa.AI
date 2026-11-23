@@ -1,8 +1,13 @@
 import {
   Bot,
+  Check,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ImagePlus,
   LogOut,
   Plus,
   Settings2,
+  Sparkles,
   UserRound,
   Workflow,
 } from "lucide-react";
@@ -20,14 +25,17 @@ import { useDispatch, useSelector } from "react-redux";
 import useAuth from "@/features/auth/hooks/useAuth";
 import { setError, setUser } from "@/features/auth/authSlice";
 import Logo from "@/assets/Orbiting Circuit C Emblem.png";
+import { Textarea } from "@/components/ui/textarea";
+import { clearAgents, setSelectedAgentId } from "@/features/agent/agentSlice";
+import { useState } from "react";
 
 function NewHome() {
   const { logout } = useAuth();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { messages } = useSelector((state) => state.chat);
-
-  console.log(messages);
+  const { agents, selectedAgentId } = useSelector((state) => state.agent);
+  const [ChevronUp, setChevronUp] = useState(false);
 
   const menuContent =
     "rounded-2xl border border-white/10 bg-[#1d2026]/95 p-1.5 text-zinc-100 shadow-2xl shadow-black/50 backdrop-blur-xl";
@@ -49,12 +57,16 @@ function NewHome() {
     try {
       const result = await logout();
       dispatch(setUser(result.user || null));
+      dispatch(clearAgents());
     } catch (error) {
       dispatch(setError(error.message));
       dispatch(setUser(null));
+    } finally {
+      dispatch(setUser(null));
+      dispatch(clearAgents());
     }
   }
-
+  const selectAgent = agents.find((agent) => agent._id === selectedAgentId);
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,#2b2f3a_0%,#191b21_55%,#121317_100%)] text-white">
       <div
@@ -228,6 +240,110 @@ function NewHome() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="z-20 w-full shrink-0 px-3 pb-3 pt-2 sm:px-5 sm:pb-4">
+              <form
+                className={`mx-auto w-full max-w-2xl rounded-2xl px-3 transition-colors focus-within:border-white/25 ${darkPanel} pb-1`}
+              >
+                <Textarea
+                  placeholder={"Ask me anything.."}
+                  className={`min-h-20 resize-none border-0 bg-transparent! px-3 py-4 text-sm text-white shadow-none placeholder:text-zinc-500 focus-visible:ring-0 ${hideScrollbar}`}
+                />
+
+                <div className="flex items-center justify-between gap-3 pt-2 pb-1.5 px-1">
+                  <div className="fles min-w-0 items-center gap-2">
+                    <Button
+                      type="button"
+                      varient="ghost"
+                      aria-label="Attech image"
+                      title="Attech image"
+                      className={`size-8  rounded-lg text-zinc-300 hover:bg-white/10 hover:text-white mr-1 h-8`}
+                    >
+                      <ImagePlus size={17} className="size-5" />
+                    </Button>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="h-8 max-w-48 gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-2.5 text-xs text-zinc-300 hover:bg-white/10 hover:text-white"
+                          />
+                        }
+                        onClick={() => setChevronUp(!ChevronUp)}
+                      >
+                        {selectAgent ? (
+                          <Bot className="size-4.5 shrink-0" />
+                        ) : (
+                          <Sparkles className="size-3.5 shrink-0 text-violet-300" />
+                        )}
+                        <span className="truncate text-[.8rem]">
+                          {selectAgent?.name || "Direct LLM"}
+                        </span>
+                        {ChevronUp ? (
+                          <ChevronUpIcon
+                            strokeWidth={3}
+                            className="transition-all ease-in-out duration-300"
+                          />
+                        ) : (
+                          <ChevronDownIcon
+                            strokeWidth={3}
+                            className="transition-all ease-in-out duration-300"
+                          />
+                        )}
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent
+                        align="start"
+                        className={`w-56 ${menuContent}`}
+                      >
+                        {/* Direct LLM (No Agent) Option */}
+                        <DropdownMenuItem
+                          onClick={() => dispatch(setSelectedAgentId(null))}
+                          className={`${menuItem} justify-between cursor-pointer`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Sparkles className="size-4 text-violet-300" />
+                            <span>Direct LLM</span>
+                          </div>
+                          {!selectedAgentId && (
+                            <Check className="size-4 text-white" />
+                          )}
+                        </DropdownMenuItem>
+
+                        {agents.length > 0 && (
+                          <DropdownMenuSeparator className={menuSeparator} />
+                        )}
+
+                        {/* User Agents List */}
+                        {agents.map((agent) => {
+                          const id = agent._id || agent.id;
+                          const isSelected =
+                            String(id) === String(selectedAgentId);
+
+                          return (
+                            <DropdownMenuItem
+                              key={id}
+                              onClick={() => dispatch(setSelectedAgentId(id))}
+                              className={`${menuItem} justify-between cursor-pointer`}
+                            >
+                              <div className="flex min-w-0 items-center gap-2.5">
+                                <Bot className="size-4 shrink-0" />
+                                <span className="truncate">{agent.name}</span>
+                              </div>
+                              {isSelected && (
+                                <Check className="size-4 shrink-0 text-white" />
+                              )}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              </form>
             </div>
           </section>
         </main>

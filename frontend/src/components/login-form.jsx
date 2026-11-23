@@ -13,13 +13,13 @@ import { signInWithPopup } from "firebase/auth";
 import googleProvider, { auth } from "@/firebase";
 import useAuth from "@/features/auth/hooks/useAuth";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/features/auth/authSlice";
+import { setInitialized, setLoading, setUser } from "@/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 
 export function LoginForm({ className, ...props }) {
   const { login } = useAuth();
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const hanldeGoogleLogin = async () => {
     try {
@@ -27,10 +27,13 @@ export function LoginForm({ className, ...props }) {
       const token = await data.user.getIdToken();
       const response = await login({ token });
       dispatch(setUser(response.user));
-      navigate('/', {replace:true})
+      navigate("/", { replace: true });
     } catch (error) {
       dispatch(setUser(null));
       console.log(error.message);
+    } finally {
+      dispatch(setLoading(false));
+      dispatch(setInitialized());
     }
   };
   return (

@@ -3,6 +3,7 @@ import {
   setAgentError,
   setAgentLoading,
   setAgents,
+  setSelectedAgentId,
 } from "@/features/agent/agentSlice";
 import useAgent from "@/features/agent/hooks/useAgent";
 import { Button, Input } from "@base-ui/react";
@@ -27,14 +28,14 @@ const whiteBtn =
   "rounded-xl border-0 bg-white text-zinc-900 hover:bg-zinc-200 hover:text-zinc-900";
 
 function Agents() {
-  const { getAllAgent, deleteAgent } = useAgent();
+  const { deleteAgent } = useAgent();
   const dispatch = useDispatch();
   const [headerHidden, setHeaderHidden] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [search, setSearch] = useState("");
-  const agents = useSelector((state) => state.agent.agents);
-  const loading = useSelector((state) => state.agent.loading);
+  const { agents } = useSelector((state) => state.agent);
+  const { loading } = useSelector((state) => state.agent);
 
   const mainRef = useRef(null);
 
@@ -76,28 +77,6 @@ function Agents() {
     };
   }, []);
 
-  const fetchAllAgent = useCallback(async () => {
-    try {
-      dispatch(setAgentLoading(true));
-      const result = await getAllAgent();
-      const list = result?.agent ?? result?.agents ?? result ?? [];
-      dispatch(setAgents(list));
-    } catch (error) {
-      const message =
-        error?.response?.data?.message ||
-        error?.response?.statusText ||
-        error?.message ||
-        "Failed to load agents";
-      dispatch(setAgentError(message));
-    } finally {
-      setAgentLoading(false);
-    }
-  }, [dispatch, getAllAgent]);
-
-  useEffect(() => {
-    fetchAllAgent();
-  }, [!agents]);
-
   const filteredAgents = agents.filter((agent) => {
     const query = search.trim().toLowerCase();
     return (
@@ -111,9 +90,6 @@ function Agents() {
     try {
       await deleteAgent(id);
       dispatch(removeAgent(id));
-      // setAgents((prev) => {
-      //   return prev.filter((a) => a._id !== id);
-      // });
     } catch (error) {
       const message =
         error?.response?.data?.message ||
@@ -287,6 +263,7 @@ function Agents() {
                       <Link
                         to={"/"}
                         className="inline-flex items-center gap-1.5"
+                        onClick={() => dispatch(setSelectedAgentId(agent?._id))}
                       >
                         <span>Use Agent</span>
                         <ArrowLeft size={16} className="rotate-180 shrink-0" />

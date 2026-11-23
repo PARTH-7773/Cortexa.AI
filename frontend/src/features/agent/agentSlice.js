@@ -1,8 +1,30 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const SELECTED_AGENT_STORAGE_KEY = "cortexa_selected_agent_id";
+
+function readStoredAgentId() {
+  try {
+    return localStorage.getItem(SELECTED_AGENT_STORAGE_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredAgentId(id) {
+  try {
+    if (id) {
+      localStorage.setItem(SELECTED_AGENT_STORAGE_KEY, String(id));
+    } else {
+      localStorage.removeItem(SELECTED_AGENT_STORAGE_KEY);
+    }
+  } catch {
+    // Ignore storage errors (e.g., private browsing mode)
+  }
+}
+
 const initialState = {
   agents: [],
-  selectedAgentId: null,
+  selectedAgentId: readStoredAgentId(),
   loading: false,
   error: null,
 };
@@ -24,25 +46,36 @@ const agentSlice = createSlice({
       state.loading = false;
       state.error = null;
 
-      // Keep selected agent if still present, Otherwise peek the first one
+      if (list.length === 0) {
+        state.selectedAgentId = null;
+        writeStoredAgentId(null);
+        return;
+      }
+
+      // Keep stored/selected agent if still present; otherwise pick the first one
       const exists = list.some(
-        (a) => (a._id || a.id) === state.selectedAgentId,
+        (a) => String(a._id || a.id) === String(state.selectedAgentId),
       );
       if (!exists) {
-        state.selectedAgentId = list[0]._id || list[0].id || null;
+        const fallbackId = list[0]._id || list[0].id || null;
+        state.selectedAgentId = fallbackId;
+        writeStoredAgentId(fallbackId);
       }
     },
     addAgent(state, action) {
       const created = action.payload;
       if (!created) return;
       state.agents.unshift(created);
-      state.selectedAgentId =
-        created._id || created.id || state.selectedAgentId;
+      const nextId = created._id || created.id || state.selectedAgentId;
+      state.selectedAgentId = nextId;
+      writeStoredAgentId(nextId);
       state.loading = false;
       state.error = null;
     },
     setSelectedAgentId(state, action) {
-      state.selectedAgentId = action.payload;
+      const nextId = action.payload || null;
+      state.selectedAgentId = nextId;
+      writeStoredAgentId(nextId);
     },
     removeAgent(state, action) {
       const targetId =
@@ -57,13 +90,15 @@ const agentSlice = createSlice({
       );
 
       if (state.selectedAgentId === targetId) {
-        state.selectedAgentId =
-          state.agents[0]?._id || state.agents[0]?.id || null;
+        const fallbackId = state.agents[0]?._id || state.agents[0]?.id || null;
+        state.selectedAgentId = fallbackId;
+        writeStoredAgentId(fallbackId);
       }
     },
-    clearAgents(state, action) {
+    clearAgents(state) {
       state.agents = [];
       state.selectedAgentId = null;
+      writeStoredAgentId(null);
       state.loading = false;
       state.error = null;
     },

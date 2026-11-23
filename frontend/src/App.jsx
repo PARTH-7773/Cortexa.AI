@@ -1,11 +1,10 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import useAuth from "@/features/auth/hooks/useAuth";
 import {
   selectAuthInitialized,
   selectAuthLoading,
-  selectIsAuthenticated,
   selectUser,
   setInitialized,
   setLoading,
@@ -13,7 +12,6 @@ import {
 } from "@/features/auth/authSlice";
 import Protectedroute from "@/components/ProtectedRoute";
 import CortexaLoader from "@/components/CortexaLoader";
-import Home from "@/pages/Home";
 import Agents from "@/pages/Agents";
 import OldAgents from "@/pages/AI-UI-Pages/Agents";
 import Integrations from "@/pages/Integrations";
@@ -21,6 +19,13 @@ import CreateAgent from "@/pages/CreateAgent";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
 import NewHome from "./pages/NewHome";
+import {
+  clearAgents,
+  setAgentError,
+  setAgentLoading,
+  setAgents,
+} from "./features/agent/agentSlice";
+import useAgent from "./features/agent/hooks/useAgent";
 
 const protectedRoute = [
   "/",
@@ -34,6 +39,7 @@ const protectedRoute = [
 
 function App() {
   const { getMe } = useAuth();
+  const { getAllAgent } = useAgent();
   const dispatch = useDispatch();
   const location = useLocation();
 
@@ -52,7 +58,6 @@ function App() {
       return;
     }
 
-    // Skip if session is already verified in this browser session
     if (initialized && user) return;
 
     let isMounted = true;
@@ -80,7 +85,33 @@ function App() {
     };
   }, [location.pathname, initialized, user, getMe, dispatch]);
 
-  // Show custom CortexaLoader while verifying session on protected routes
+  const fetchAllAgent = useCallback(async () => {
+    try {
+      dispatch(setAgentLoading(true));
+      const result = await getAllAgent();
+      const list = result?.agent ?? result?.agents ?? result ?? [];
+      dispatch(setAgents(list));
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.statusText ||
+        error?.message ||
+        "Failed to load agents";
+      dispatch(setAgentError(message));
+    } finally {
+      dispatch(setAgentLoading(false));
+    }
+  }, [dispatch, getAllAgent]);
+
+  useEffect(() => {
+    if (!user) {
+      dispatch(clearAgents());
+      return;
+    }
+
+    fetchAllAgent();
+  }, [user, fetchAllAgent, dispatch]);
+
   if (protectedRoute.includes(location.pathname) && (!initialized || loading)) {
     return (
       <CortexaLoader
