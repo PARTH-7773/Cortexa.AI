@@ -3,7 +3,6 @@ import Agent from "../models/agent.model.js";
 const createAgent = async (req, res) => {
   try {
     const { name, knowledgeBase, instructions, tools } = req.body;
-
     const userId = req.user._id;
     if (!name || !knowledgeBase || !instructions || !tools) {
       return res.status(400).json({
@@ -11,7 +10,13 @@ const createAgent = async (req, res) => {
         message: "All fields are required for creating new agent",
       });
     }
-
+    const existAgent = await Agent.findOne({ userId, name });
+    if (existAgent) {
+      return res.status(422).json({
+        success: false,
+        message: `Agent with this name already exist - '${name}'`,
+      });
+    }
     const agent = await Agent.create({
       userId,
       name,
