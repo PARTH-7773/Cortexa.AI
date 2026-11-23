@@ -92,7 +92,7 @@ function NewHome() {
             </span>
           </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ">
             {/* Workflows & Agents Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -101,7 +101,7 @@ function NewHome() {
                     type="button"
                     variant="outline"
                     aria-label="Open workflows menu"
-                    className={iconBtn}
+                    className={`${iconBtn} cursor-pointer`}
                   />
                 }
               >
@@ -112,17 +112,17 @@ function NewHome() {
                 className={`w-56 ${menuContent}`}
               >
                 <DropdownMenuItem
-                  className={menuItem}
+                  className={`${menuItem} cursor-pointer`}
                   render={<Link to={"/agents"} />}
                 >
                   <Bot strokeWidth={3} className="size-4" />
                   <span>My Agent</span>
                 </DropdownMenuItem>
 
-                <DropdownMenuSeparator className={menuSeparator} />
+                <DropdownMenuSeparator className={`${menuSeparator}`} />
 
                 <DropdownMenuItem
-                  className={menuItem}
+                  className={`cursor-pointer ${menuItem}`}
                   render={<Link to={"/agent/new"} />}
                 >
                   <Plus strokeWidth={3} className="size-4" />
@@ -130,7 +130,7 @@ function NewHome() {
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  className={menuItem}
+                  className={`cursor-pointer ${menuItem}`}
                   render={<Link to={"/integration"} />}
                 >
                   <Settings2 className="size-4" strokeWidth={2.5} />
@@ -147,7 +147,7 @@ function NewHome() {
                     type="button"
                     variant="outline"
                     aria-label="Open profile menu"
-                    className="flex size-9 w-fit items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.05] p-0 text-zinc-300 hover:bg-white/10 hover:text-white"
+                    className="flex size-9 w-fit items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.05] p-0 text-zinc-300 hover:bg-white/10 hover:text-white "
                   />
                 }
               >
@@ -258,7 +258,7 @@ function NewHome() {
                       varient="ghost"
                       aria-label="Attech image"
                       title="Attech image"
-                      className={`size-8  rounded-lg text-zinc-300 hover:bg-white/10 hover:text-white mr-1 h-8`}
+                      className={`size-8 cursor-pointer rounded-lg text-zinc-300 hover:bg-white/10 hover:text-white mr-1 h-8`}
                     >
                       <ImagePlus size={17} className="size-5" />
                     </Button>
@@ -269,7 +269,7 @@ function NewHome() {
                           <Button
                             type="button"
                             variant="ghost"
-                            className="h-8 max-w-48 gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-2.5 text-xs text-zinc-300 hover:bg-white/10 hover:text-white"
+                            className="h-8 cursor-pointer max-w-48 gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-2.5 text-xs text-zinc-300 hover:bg-white/10 hover:text-white"
                           />
                         }
                         onClick={() => setChevronUp(!ChevronUp)}
