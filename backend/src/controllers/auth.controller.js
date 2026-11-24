@@ -7,6 +7,8 @@ import app from "../config/firebase.js";
 const login = async (req, res) => {
   try {
     const { token: firebaseToken } = req.body;
+
+    console.log("token is: ",firebaseToken)
     if (!firebaseToken) {
       return res.status(400).json({
         success: false,
