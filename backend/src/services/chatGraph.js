@@ -17,7 +17,6 @@ const checkpointer = new MongoDBSaver({
 });
 
 const chatNode = async (state) => {
-  console.log(state);
   const response = await llm.invoke(state.messages);
 
   return {

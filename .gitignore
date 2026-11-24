@@ -18,6 +18,7 @@ node_modules/
 
 # Firebase & Cloud Credentials
 serviceAccountKey.json
+REAL-firebase.js
 **/serviceAccountKey.json
 firebase-adminsdk*.json
 **/firebase-adminsdk*.json

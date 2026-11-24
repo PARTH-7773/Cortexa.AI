@@ -1,4 +1,4 @@
-import app from "../config/firebase.js";
+import app from "../config/REAL-firebase.js";
 import { getAuth } from "firebase-admin/auth";
 import jwt from "jsonwebtoken";
 
