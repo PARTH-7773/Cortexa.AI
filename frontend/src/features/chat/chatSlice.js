@@ -15,16 +15,19 @@ const chatSlice = createSlice({
     setSelectedAgent(state, action) {
       state.selectedAgent = action.payload;
     },
-    clearSelectdAgent(state, action) {
+    clearSelectdAgent(state) {
       state.selectedAgent = null;
     },
     setActiveTreadId(state, action) {
       state.activeTreadId = action.payload;
     },
-    setMessages(state) {
+    setMessages(state,action) {
       state.messages = action.payload;
     },
-    clearChat(state, action) {
+    setNewMessage(state,action){
+      state.messages.push(action.payload)
+    },
+    clearChat(state) {
       state.messages = [];
       state.activeTreadId = null;
       state.error = null;
@@ -40,6 +43,7 @@ export const {
   clearSelectdAgent,
   setActiveTreadId,
   setMessages,
+  setNewMessage,
   clearChat,
   clearChatError,
 } = chatSlice.actions;

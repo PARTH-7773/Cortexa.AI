@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { clearAgents, setSelectedAgentId } from "@/features/agent/agentSlice";
 import { useState } from "react";
 import useChat from "@/features/chat/hooks/useChat";
+import { setMessages, setNewMessage } from "@/features/chat/chatSlice";
 
 function NewHome() {
   const { logout } = useAuth();
@@ -40,7 +41,7 @@ function NewHome() {
   const { messages } = useSelector((state) => state.chat);
   const { agents, selectedAgentId } = useSelector((state) => state.agent);
   const [ChevronUp, setChevronUp] = useState(false);
-  const [input, setInput] = useState();
+  const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
 
   const menuContent =
@@ -62,9 +63,18 @@ function NewHome() {
   const handleInput = async (e) => {
     e.preventDefault();
     try {
-      const result = await chat({ message: input });
-      console.log(result);
-    } catch (error) {}
+      dispatch(setNewMessage({ role: "user", context: input.trim() }));
+      const result = await chat({ message: input.trim() });
+      setInput('');
+      dispatch(
+        setNewMessage({
+          role: "assistant",
+          context: result.aiMessage || "Something went wrong..!",
+        })
+      );
+    } catch (error) {
+      //
+    }
   };
 
   async function handleLogout() {
@@ -239,18 +249,24 @@ function NewHome() {
                 {messages.map((message, i) => (
                   <div
                     key={i}
-                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                    className={`flex ${
+                      message.role === "user" ? "justify-end" : "justify-start"
+                    }`}
                   >
                     {message.role === "assistant" && (
-                      <div className="mr-3 mt-1 grid size-8 shrink-0 place-items-center rounded-lg bg-white text-zinc-900">
+                      <div className="mr-1 mt-2 ml-2 grid size-8 shrink-0 place-items-center rounded-lg bg-white text-zinc-900">
                         <Workflow size={15} />
                       </div>
                     )}
 
                     <div
-                      className={`max-w-[90%] wrap-break-word px-4 py-3 text-sm leading-7 sm:max-w-[80%] ${message.role === "user" ? `rounded-2xl rounded-br-md text-white ${darkPanel}` : "text-zinc-200"}`}
+                      className={`max-w-[90%] wrap-break-word px-4 py-3 text-sm leading-7 sm:max-w-[80%] ${
+                        message.role === "user"
+                          ? `rounded-2xl rounded-br-md text-white ${darkPanel}`
+                          : "text-zinc-200"
+                      }`}
                     >
-                      <p className="whitespace-pre-wrap">{message.content}</p>
+                      <p className="whitespace-pre-wrap">{message.context}</p>
                     </div>
                   </div>
                 ))}
@@ -374,7 +390,7 @@ function NewHome() {
                     type="submit"
                     disabled={!input?.trim() || isSending}
                     aria-label="Send message"
-                    onClick={handleInput}
+                    onClick={(e) => handleInput(e)}
                     className="size-8 shrink-0 rounded-lg border border-violet-400/30 bg-violet-500/20 p-0 text-violet-200 transition hover:border-violet-400/50 hover:bg-violet-500/30 hover:text-white disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/[0.04] disabled:text-zinc-500"
                   >
                     {isSending ? (
