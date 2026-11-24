@@ -21,7 +21,9 @@ app.use((err, req, res, next) => {
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   "http://localhost:5173",
-  "http://localhost:3000",
+  "https://cortexaai-git-main-parth-7773s-projects.vercel.app",
+  "https://cortexaai-gamma.vercel.app",
+  "https://cortexa-qqevjj7kw-parth-7773s-projects.vercel.app"
 ].filter(Boolean);
 
 app.use(
