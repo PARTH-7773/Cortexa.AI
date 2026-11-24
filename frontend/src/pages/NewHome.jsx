@@ -1,9 +1,11 @@
 import {
+  ArrowUp,
   Bot,
   Check,
   ChevronDownIcon,
   ChevronUpIcon,
   ImagePlus,
+  Loader2,
   LogOut,
   Plus,
   Settings2,
@@ -28,14 +30,18 @@ import Logo from "@/assets/Orbiting Circuit C Emblem.png";
 import { Textarea } from "@/components/ui/textarea";
 import { clearAgents, setSelectedAgentId } from "@/features/agent/agentSlice";
 import { useState } from "react";
+import useChat from "@/features/chat/hooks/useChat";
 
 function NewHome() {
   const { logout } = useAuth();
+  const { chat } = useChat();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { messages } = useSelector((state) => state.chat);
   const { agents, selectedAgentId } = useSelector((state) => state.agent);
   const [ChevronUp, setChevronUp] = useState(false);
+  const [input, setInput] = useState();
+  const [isSending, setIsSending] = useState(false);
 
   const menuContent =
     "rounded-2xl border border-white/10 bg-[#1d2026]/95 p-1.5 text-zinc-100 shadow-2xl shadow-black/50 backdrop-blur-xl";
@@ -53,6 +59,14 @@ function NewHome() {
   const darkPanel =
     "border border-white/10 bg-white/[0.04] shadow-[0_20px_60px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl";
 
+  const handleInput = async (e) => {
+    e.preventDefault();
+    try {
+      const result = await chat({ message: input });
+      console.log(result);
+    } catch (error) {}
+  };
+
   async function handleLogout() {
     try {
       const result = await logout();
@@ -67,6 +81,7 @@ function NewHome() {
     }
   }
   const selectAgent = agents.find((agent) => agent._id === selectedAgentId);
+
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,#2b2f3a_0%,#191b21_55%,#121317_100%)] text-white">
       <div
@@ -249,6 +264,8 @@ function NewHome() {
                 <Textarea
                   placeholder={"Ask me anything.."}
                   className={`min-h-20 resize-none border-0 bg-transparent! px-3 py-4 text-sm text-white shadow-none placeholder:text-zinc-500 focus-visible:ring-0 ${hideScrollbar}`}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
                 />
 
                 <div className="flex items-center justify-between gap-3 pt-2 pb-1.5 px-1">
@@ -339,9 +356,33 @@ function NewHome() {
                             </DropdownMenuItem>
                           );
                         })}
+                        <DropdownMenuSeparator className={menuSeparator} />
+                        <DropdownMenuItem
+                          className={`${menuItem} cursor-pointer text-zinc-200`}
+                          render={<Link to="/agent/new" />}
+                        >
+                          <Plus
+                            strokeWidth={2.5}
+                            className="size-4 text-violet-300"
+                          />
+                          <span>Create New Agent</span>
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
+                  <Button
+                    type="submit"
+                    disabled={!input?.trim() || isSending}
+                    aria-label="Send message"
+                    onClick={handleInput}
+                    className="size-8 shrink-0 rounded-lg border border-violet-400/30 bg-violet-500/20 p-0 text-violet-200 transition hover:border-violet-400/50 hover:bg-violet-500/30 hover:text-white disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/[0.04] disabled:text-zinc-500"
+                  >
+                    {isSending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <ArrowUp className="size-4" strokeWidth={2.5} />
+                    )}
+                  </Button>
                 </div>
               </form>
             </div>

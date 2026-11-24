@@ -1,16 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  messages: [
-    {
-      role: "user",
-      content: "hello",
-    },
-    {
-      role: "assistant",
-      content: "How can i help you today?",
-    },
-  ],
+  messages: [],
   selectedAgent: null,
   activeTreadId: null,
   isLoading: false,
