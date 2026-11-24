@@ -20,7 +20,7 @@ app.use((err, req, res, next) => {
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://cortexa-dev.vercel.app"],
+    origin: ["http://localhost:5173", "https://cortexa-dev.vercel.app","cortexaai-gamma.vercel.app"],
     credentials: true,
   }),
 );
