@@ -1,9 +1,8 @@
-import app from "../config/REAL-firebase.js";
 import { getAuth } from "firebase-admin/auth";
 import jwt from "jsonwebtoken";
-
 import User from "../models/user.model.js";
 import config from "../config/ENV.config.js";
+import app from "../config/firebase.js";
 
 const login = async (req, res) => {
   try {
