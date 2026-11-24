@@ -63,9 +63,10 @@ function NewHome() {
   const handleInput = async (e) => {
     e.preventDefault();
     try {
-      dispatch(setNewMessage({ role: "user", context: input.trim() }));
-      const result = await chat({ message: input.trim() });
-      setInput('');
+      const messageData = { role: "user", context: input.trim() };
+      setInput("");
+      dispatch(setNewMessage(messageData));
+      const result = await chat({ message: messageData.context});
       dispatch(
         setNewMessage({
           role: "assistant",
