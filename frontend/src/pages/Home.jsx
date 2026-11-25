@@ -7,11 +7,9 @@ import {
   Loader2,
   LogOut,
   Mail,
-  Pencil,
   Plus,
   Send,
   Settings2,
-  ShieldCheck,
   Sparkles,
   UserRound,
   Workflow,
@@ -30,14 +28,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import useAuth from "@/features/auth/hooks/useAuth";
 import { setError, setUser } from "@/features/auth/authSlice";
 import useAgent from "@/features/agent/hooks/useAgent";
-import { setAgents } from "@/features/agent/agentSlice";
+import {
+  clearAgents,
+  setAgents,
+  setSelectedAgentId,
+} from "@/features/agent/agentSlice";
+import useChat from "@/features/chat/hooks/useChat";
+import { setNewMessage } from "@/features/chat/chatSlice";
 import Logo from "@/assets/Orbiting Circuit C Emblem.png";
+import MarkdownMessage from "@/components/MarkdownMessage";
 
-const DEMO_STARTERS = [
+const STARTER_PROMPTS = [
   "Send an email to rahul@example.com about the project update",
   "Compare top tech stacks for a real-time dashboard",
   "Break down a weekly sprint plan with clear milestones",
@@ -65,43 +69,6 @@ function formatToolLabel(tool) {
     "gmail.send": "Send Emails",
   };
   return map[raw] || raw || "Tool";
-}
-
-function isEmailCommand(text) {
-  return /\b(send\s+(an?\s+)?email|email\s+to|mail\s+to|send\s+mail|draft\s+(an?\s+)?email)\b/i.test(
-    text,
-  );
-}
-
-function buildEmailDraft(rawText, agentName) {
-  const emailMatch = rawText.match(
-    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/,
-  );
-  const to = emailMatch ? emailMatch[0] : "recipient@example.com";
-
-  const subjectMatch = rawText.match(
-    /\b(?:about|regarding|for|subject:?)\s+(.+)/i,
-  );
-  const topic = subjectMatch
-    ? subjectMatch[1].trim()
-    : rawText
-        .replace(
-          /\b(send\s+(an?\s+)?email|email\s+to|mail\s+to|send\s+mail)\b/i,
-          "",
-        )
-        .trim();
-
-  const subject = topic
-    ? topic.length > 68
-      ? `${topic.slice(0, 68)}...`
-      : topic
-    : "Quick Follow-up from Automation AI";
-
-  const body = `Hi,\n\nSharing a quick update prepared by ${agentName} regarding: ${
-    topic || "your request"
-  }.\n\nLet me know if you need any adjustments.\n\nBest regards,\nAutomation AI`;
-
-  return { to, subject, body };
 }
 
 function ModernReveal({
@@ -207,15 +174,15 @@ function AgentTiltCard({ agent, isSelected, onSelect }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        transform: `perspective(900px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translate3d(0, ${
-          tilt.active ? -3 : 0
-        }px, 0)`,
+        transform: `perspective(900px) rotateX(${tilt.rx}deg) rotateY(${
+          tilt.ry
+        }deg) translate3d(0, ${tilt.active ? -3 : 0}px, 0)`,
         transition: tilt.active
           ? "transform 90ms ease-out, border-color 200ms, background-color 200ms, box-shadow 200ms"
           : "transform 380ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms, background-color 200ms, box-shadow 200ms",
         willChange: "transform",
       }}
-      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-4 text-left ${
+      className={`group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border p-4 text-left ${
         isSelected
           ? "border-white/25 bg-white/[0.1] shadow-[0_14px_34px_rgba(0,0,0,0.35)]"
           : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
@@ -284,152 +251,27 @@ function AgentTiltCard({ agent, isSelected, onSelect }) {
   );
 }
 
-function HitlEmailDraftCard({ msg, onApprove, onReject, onUpdateDraft }) {
-  const [editing, setEditing] = useState(false);
-  const draft = msg.draft;
-  const status = msg.status || "pending";
-
-  return (
-    <div className="w-full max-w-[92%] rounded-2xl border border-amber-400/25 bg-[#1a1d24]/90 p-4 text-xs text-zinc-200 shadow-xl backdrop-blur-xl sm:max-w-[82%] sm:text-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2.5">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[11px] font-medium text-amber-200">
-            <ShieldCheck size={12} />
-            <span>Human-in-the-Loop Email Draft</span>
-          </span>
-          <span className="text-[11px] text-zinc-400">{msg.agentName}</span>
-        </div>
-
-        {status === "approved" && (
-          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-300">
-            <Check size={11} />
-            <span>Approved & Sent (Demo)</span>
-          </span>
-        )}
-        {status === "rejected" && (
-          <span className="inline-flex items-center gap-1 rounded-full border border-red-400/30 bg-red-400/10 px-2.5 py-0.5 text-[11px] font-medium text-red-300">
-            <X size={11} />
-            <span>Rejected</span>
-          </span>
-        )}
-      </div>
-
-      {editing && status === "pending" ? (
-        <div className="mt-3 space-y-2.5">
-          <div>
-            <label className="mb-1 block text-[11px] text-zinc-400">To</label>
-            <Input
-              value={draft.to}
-              onChange={(e) =>
-                onUpdateDraft(msg.id, { ...draft, to: e.target.value })
-              }
-              className="h-9 rounded-xl border-white/15 bg-white/[0.04] text-xs text-white"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-[11px] text-zinc-400">
-              Subject
-            </label>
-            <Input
-              value={draft.subject}
-              onChange={(e) =>
-                onUpdateDraft(msg.id, { ...draft, subject: e.target.value })
-              }
-              className="h-9 rounded-xl border-white/15 bg-white/[0.04] text-xs text-white"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-[11px] text-zinc-400">Body</label>
-            <Textarea
-              value={draft.body}
-              onChange={(e) =>
-                onUpdateDraft(msg.id, { ...draft, body: e.target.value })
-              }
-              rows={4}
-              className="rounded-xl border-white/15 bg-white/[0.04] text-xs leading-relaxed text-white"
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="mt-3 space-y-2 rounded-xl border border-white/[0.08] bg-white/[0.02] p-3">
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
-            <span className="text-zinc-400">
-              To: <span className="font-medium text-white">{draft.to}</span>
-            </span>
-            <span className="text-zinc-400">
-              Subject:{" "}
-              <span className="font-medium text-white">{draft.subject}</span>
-            </span>
-          </div>
-          <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-zinc-300">
-            {draft.body}
-          </pre>
-        </div>
-      )}
-
-      {status === "pending" && (
-        <div className="mt-3.5 flex flex-wrap items-center justify-end gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setEditing((prev) => !prev)}
-            className="h-8 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-xs text-zinc-200 hover:bg-white/10 hover:text-white"
-          >
-            <Pencil size={12} className="mr-1.5" />
-            <span>{editing ? "Done Editing" : "Edit Draft"}</span>
-          </Button>
-
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => onReject(msg.id)}
-            className="h-8 rounded-xl border border-red-400/25 bg-red-500/10 px-3 text-xs font-medium text-red-300 hover:bg-red-500/20"
-          >
-            <X size={13} className="mr-1" />
-            <span>Reject</span>
-          </Button>
-
-          <Button
-            type="button"
-            onClick={() => onApprove(msg.id)}
-            className="h-8 rounded-xl bg-white px-3.5 text-xs font-semibold text-zinc-950 hover:bg-zinc-200"
-          >
-            <Check size={13} className="mr-1.5" />
-            <span>Approve & Send</span>
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function Home() {
   const { logout } = useAuth();
   const { getAllAgent } = useAgent();
+  const { chat } = useChat();
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth?.user);
   const reduxAgents = useSelector((state) => state.agent?.agents);
+  const selectedAgentId = useSelector((state) => state.agent?.selectedAgentId);
+  const messages = useSelector((state) => state.chat?.messages || []);
 
   const agentsList = useMemo(
     () => (Array.isArray(reduxAgents) ? reduxAgents : []),
     [reduxAgents],
   );
 
-  const [selectedAgentId, setSelectedAgentId] = useState("");
   const [loadingAgents, setLoadingAgents] = useState(false);
   const [prompt, setPrompt] = useState("");
-  const [messages, setMessages] = useState([
-    {
-      id: "welcome-1",
-      type: "text",
-      sender: "assistant",
-      agentName: "Automation AI",
-      text: 'Select one of your agents above and type a command—like "Send an email to alex@example.com about today\'s release"—to preview a draft with approval buttons right here in chat.',
-    },
-  ]);
+  const [isSending, setIsSending] = useState(false);
 
   const [toast, setToast] = useState(null);
   const [toastClosing, setToastClosing] = useState(false);
@@ -448,13 +290,15 @@ function Home() {
   const closeToastTimerRef = useRef(null);
 
   const activeAgent = useMemo(() => {
-    if (!agentsList.length) return null;
+    if (!selectedAgentId || !agentsList.length) return null;
     return (
-      agentsList.find((a) => getAgentId(a) === selectedAgentId) || agentsList[0]
+      agentsList.find(
+        (a) => String(getAgentId(a)) === String(selectedAgentId),
+      ) || null
     );
   }, [agentsList, selectedAgentId]);
 
-  const activeAgentName = activeAgent?.name || "Automation AI";
+  const activeAgentName = activeAgent?.name || "Direct LLM";
   const activeAgentTools = Array.isArray(activeAgent?.tools)
     ? activeAgent.tools.map(formatToolLabel)
     : [];
@@ -494,10 +338,10 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    if (hasFetchedAgentsRef.current) return;
+    if (hasFetchedAgentsRef.current || agentsList.length > 0) return;
     hasFetchedAgentsRef.current = true;
     fetchUserAgents();
-  }, [fetchUserAgents]);
+  }, [fetchUserAgents, agentsList.length]);
 
   useEffect(() => {
     const stateAgentId =
@@ -505,14 +349,9 @@ function Home() {
       getAgentId(location.state?.selectedAgent);
 
     if (stateAgentId) {
-      setSelectedAgentId(stateAgentId);
-      return;
+      dispatch(setSelectedAgentId(stateAgentId));
     }
-
-    if (agentsList.length > 0 && !selectedAgentId) {
-      setSelectedAgentId(getAgentId(agentsList[0]));
-    }
-  }, [agentsList, location.state, selectedAgentId]);
+  }, [location.state, dispatch]);
 
   useEffect(() => {
     const incomingToast = location.state?.toast;
@@ -616,7 +455,7 @@ function Home() {
       behavior: "smooth",
       block: "nearest",
     });
-  }, [messages.length]);
+  }, [messages.length, isSending]);
 
   const handleHeroMouseMove = (e) => {
     if (!heroRef.current) return;
@@ -631,99 +470,58 @@ function Home() {
   async function handleLogout() {
     try {
       const result = await logout();
-      dispatch(setUser(result.user || null));
+      dispatch(setUser(result?.user || null));
+      dispatch(clearAgents());
     } catch (error) {
       dispatch(setError(error.message));
       dispatch(setUser(null));
+      dispatch(clearAgents());
     }
   }
 
-  function handleUpdateDraft(msgId, nextDraft) {
-    setMessages((prev) =>
-      prev.map((m) => (m.id === msgId ? { ...m, draft: nextDraft } : m)),
-    );
-  }
-
-  function handleApproveDraft(msgId) {
-    hasSentMessageRef.current = true;
-    const targetMsg = messages.find((m) => m.id === msgId);
-    if (!targetMsg) return;
-
-    setMessages((prev) => [
-      ...prev.map((m) => (m.id === msgId ? { ...m, status: "approved" } : m)),
-      {
-        id: `sent-${Date.now()}`,
-        type: "text",
-        sender: "assistant",
-        agentName: targetMsg.agentName,
-        text: `[Demo approved] Email to ${targetMsg.draft.to} ("${targetMsg.draft.subject}") marked as sent locally.`,
-      },
-    ]);
-  }
-
-  function handleRejectDraft(msgId) {
-    hasSentMessageRef.current = true;
-    const targetMsg = messages.find((m) => m.id === msgId);
-    if (!targetMsg) return;
-
-    setMessages((prev) => [
-      ...prev.map((m) => (m.id === msgId ? { ...m, status: "rejected" } : m)),
-      {
-        id: `rej-${Date.now()}`,
-        type: "text",
-        sender: "assistant",
-        agentName: targetMsg.agentName,
-        text: `Draft email to ${targetMsg.draft.to} was rejected and not sent.`,
-      },
-    ]);
-  }
-
-  function sendDemoMessage(rawText) {
+  const sendMessage = async (rawText) => {
     const clean = rawText.trim();
-    if (!clean) return;
+    if (!clean || isSending) return;
 
     hasSentMessageRef.current = true;
-
-    const userMsg = {
-      id: `u-${Date.now()}`,
-      type: "text",
-      sender: "user",
-      text: clean,
-    };
-
-    if (isEmailCommand(clean)) {
-      const draftMsg = {
-        id: `hitl-${Date.now() + 1}`,
-        type: "hitl-email",
-        sender: "assistant",
-        agentName: activeAgentName,
-        status: "pending",
-        draft: buildEmailDraft(clean, activeAgentName),
-      };
-      setMessages((prev) => [...prev, userMsg, draftMsg]);
-      setPrompt("");
-      return;
-    }
-
-    const demoReply = {
-      id: `a-${Date.now() + 1}`,
-      type: "text",
-      sender: "assistant",
-      agentName: activeAgentName,
-      text: `[Demo preview via ${activeAgentName}] Simulated response for "${clean}"${
-        activeAgentTools.length
-          ? ` using tools: ${activeAgentTools.join(", ")}.`
-          : "."
-      }`,
-    };
-
-    setMessages((prev) => [...prev, userMsg, demoReply]);
+    setIsSending(true);
     setPrompt("");
-  }
 
-  function handleDemoSubmit(e) {
+    dispatch(setNewMessage({ role: "user", context: clean }));
+
+    try {
+      const payload = selectedAgentId
+        ? { message: clean, agentId: selectedAgentId }
+        : { message: clean };
+
+      const result = await chat(payload);
+
+      dispatch(
+        setNewMessage({
+          role: "assistant",
+          context:
+            result?.aiMessage || result?.message || "Something went wrong..!",
+        }),
+      );
+    } catch (error) {
+      const errMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to get a response from the assistant.";
+      dispatch(
+        setNewMessage({
+          role: "assistant",
+          context: errMsg,
+        }),
+      );
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  function handleSubmit(e) {
     e.preventDefault();
-    sendDemoMessage(prompt);
+    sendMessage(prompt);
   }
 
   return (
@@ -774,6 +572,7 @@ function Home() {
         }
       `}</style>
 
+      {/* Top Scroll Progress Bar */}
       <div className="fixed inset-x-0 top-0 z-50 h-[2px] bg-white/[0.06]">
         <div
           className="h-full origin-left bg-gradient-to-r from-zinc-400 via-white to-zinc-300 shadow-[0_0_12px_rgba(255,255,255,0.6)] transition-transform duration-75 ease-out"
@@ -781,6 +580,7 @@ function Home() {
         />
       </div>
 
+      {/* Ambient Glow */}
       <div
         aria-hidden
         className="pointer-events-none fixed left-1/2 top-[-120px] h-[340px] w-[620px] -translate-x-1/2 animate-pulse rounded-full bg-white/[0.04] blur-3xl"
@@ -791,7 +591,8 @@ function Home() {
         className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.35)_100%)]"
       />
 
-      <div className="pl-2 relative z-10 flex min-h-0 flex-1 flex-col">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col pl-2">
+        {/* Auto-Hiding Glass Header */}
         <header
           style={{
             transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
@@ -818,19 +619,13 @@ function Home() {
             }`}
           >
             <Link
-              to={"/"}
+              to="/"
               className="group flex items-center gap-1 rounded-xl py-1 pr-2 transition-colors"
             >
-              {/* <span className="relative grid size-10 place-items-center rounded-lg bg-white text-zinc-900 shadow-[0_0_20px_rgba(255,255,255,0.14)] transition-all duration-300 ease-out group-hover:-rotate-6 group-hover:scale-105 group-hover:shadow-[0_0_24px_rgba(255,255,255,0.28)] active:scale-95">
-                <Workflow
-                  size={17}
-                  className="transition-transform duration-300 group-hover:rotate-12"
-                />
-              </span> */}
-              <span className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-xl ">
+              <span className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-xl">
                 <img
                   src={Logo}
-                  alt="Automation AI"
+                  alt="Cortexa"
                   className="size-5 h-full w-full object-contain transition-transform duration-300 ease-out group-hover:scale-95"
                 />
               </span>
@@ -853,7 +648,7 @@ function Home() {
             }`}
           >
             <Link
-              to={"/agent/new"}
+              to="/agent/new"
               className="group hidden items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-medium text-zinc-200 transition-all duration-200 hover:border-white/25 hover:bg-white/10 hover:text-white active:scale-95 sm:inline-flex"
             >
               <Plus
@@ -870,7 +665,7 @@ function Home() {
                     type="button"
                     variant="outline"
                     aria-label="Open workflows menu"
-                    className={iconBtn}
+                    className={`${iconBtn} cursor-pointer`}
                   />
                 }
               >
@@ -881,8 +676,8 @@ function Home() {
                 className={`w-56 ${menuContent}`}
               >
                 <DropdownMenuItem
-                  className={menuItem}
-                  render={<Link to={"/agents"} />}
+                  className={`${menuItem} cursor-pointer`}
+                  render={<Link to="/agents" />}
                 >
                   <Bot strokeWidth={3} className="size-4" />
                   <span>My Agent</span>
@@ -891,16 +686,16 @@ function Home() {
                 <DropdownMenuSeparator className={menuSeparator} />
 
                 <DropdownMenuItem
-                  className={menuItem}
-                  render={<Link to={"/agent/new"} />}
+                  className={`${menuItem} cursor-pointer`}
+                  render={<Link to="/agent/new" />}
                 >
                   <Plus strokeWidth={3} className="size-4" />
                   <span>Create New Agent</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  className={menuItem}
-                  render={<Link to={"/integration"} />}
+                  className={`${menuItem} cursor-pointer`}
+                  render={<Link to="/integration" />}
                 >
                   <Settings2 className="size-4" strokeWidth={2.5} />
                   <span>Integration</span>
@@ -915,11 +710,11 @@ function Home() {
                     type="button"
                     variant="outline"
                     aria-label="Open profile menu"
-                    className="flex size-9 w-fit items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.05] p-0 text-zinc-300 transition-all duration-200 hover:border-white/25 hover:bg-white/10 hover:text-white active:scale-95"
+                    className="flex size-9 w-fit cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.05] p-0 text-zinc-300 transition-all duration-200 hover:border-white/25 hover:bg-white/10 hover:text-white active:scale-95"
                   />
                 }
               >
-                {user && user.profilePicture ? (
+                {user?.profilePicture ? (
                   <img
                     src={user.profilePicture}
                     alt={user?.name || "Profile"}
@@ -941,10 +736,10 @@ function Home() {
                 <div className="flex items-center gap-3 px-3 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
-                      {user?.name || "Demo User"}
+                      {user?.name || "User"}
                     </p>
                     <p className="truncate text-sm text-zinc-400">
-                      {user?.email || "demo@automation.ai"}
+                      {user?.email || ""}
                     </p>
                   </div>
                 </div>
@@ -963,11 +758,13 @@ function Home() {
           </div>
         </header>
 
+        {/* Scrollable Workspace Content */}
         <main
           ref={mainRef}
           className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col justify-between gap-5 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8"
         >
           <div className="space-y-6">
+            {/* Hero Spotlight Banner */}
             <ModernReveal immediate delay={40} y={18} blur={6}>
               <section
                 ref={heroRef}
@@ -988,159 +785,206 @@ function Home() {
 
                 <div className="relative z-10">
                   <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-zinc-300">
-                    <Sparkles size={12} className="text-white" />
-                    <span>Local Demo Workspace + HITL</span>
+                    <Sparkles size={12} className="text-violet-300" />
+                    <span>
+                      {user?.name
+                        ? `Welcome back, ${user.name}`
+                        : "Cortexa AI Workspace"}
+                    </span>
                   </div>
                   <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
                     What can we automate today?
                   </h1>
                   <p className="mt-1.5 text-sm text-zinc-400">
-                    Ask the agent to send an email to preview a draft with
-                    inline approval controls.
+                    Choose an agent below or chat directly with Cortexa AI.
                   </p>
                 </div>
 
                 <div className="relative z-10 shrink-0 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 transition-all duration-300">
                   <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-                    Active Agent
+                    Active Mode
                   </p>
                   <p className="mt-0.5 text-sm font-medium text-white">
                     {activeAgentName}
                   </p>
                   <p className="mt-0.5 text-xs text-zinc-400">
-                    {activeAgentTools.length
-                      ? activeAgentTools.join(" • ")
-                      : "No tools selected"}
+                    {activeAgent
+                      ? activeAgentTools.length
+                        ? activeAgentTools.join(" • ")
+                        : "No tools selected"
+                      : "General AI Assistant"}
                   </p>
                 </div>
               </section>
             </ModernReveal>
 
+            {/* Agent Cards Grid + Direct LLM Option */}
             <ModernReveal rootRef={mainRef} delay={60} y={22} blur={6}>
-              {loadingAgents && agentsList.length === 0 ? (
-                <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-xs text-zinc-400">
-                  <Loader2 size={15} className="animate-spin" />
-                  <span>Loading your agents...</span>
-                </div>
-              ) : agentsList.length > 0 ? (
-                <section className="grid gap-3 sm:grid-cols-3">
-                  {agentsList.map((agent, idx) => {
-                    const id = getAgentId(agent) || `agent-${idx}`;
-                    return (
-                      <AgentTiltCard
-                        key={id}
-                        agent={agent}
-                        isSelected={getAgentId(activeAgent) === id}
-                        onSelect={() => setSelectedAgentId(id)}
-                      />
-                    );
-                  })}
-                </section>
-              ) : (
-                <div
-                  className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4 text-xs ${darkPanel}`}
-                >
-                  <span className="text-zinc-400">
-                    You haven&apos;t created any agents yet.
-                  </span>
-                  <Link
-                    to={"/agent/new"}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-100"
-                  >
-                    <Plus size={14} />
-                    <span>Create Agent</span>
-                  </Link>
-                </div>
-              )}
-            </ModernReveal>
-
-            <ModernReveal rootRef={mainRef} delay={60} y={20} blur={5}>
-              <section className="space-y-2">
-                <p className="text-xs font-medium text-zinc-400">
-                  Try a starter prompt
-                </p>
-                <div className="grid gap-2 sm:grid-cols-3">
-                  {DEMO_STARTERS.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => sendDemoMessage(item)}
-                      className="group flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-left text-xs text-zinc-300 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.07] hover:text-white active:scale-[0.985]"
-                    >
-                      <span className="line-clamp-2">{item}</span>
-                      <ArrowUp
-                        size={14}
-                        className="shrink-0 rotate-45 text-zinc-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white"
-                      />
-                    </button>
-                  ))}
-                </div>
-              </section>
-            </ModernReveal>
-
-            <ModernReveal rootRef={mainRef} delay={60} y={20} blur={5}>
-              <section className="space-y-3 rounded-3xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl sm:p-5">
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`animate-msg-pop flex ${
-                      msg.sender === "user" ? "justify-end" : "justify-start"
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-zinc-400">
+                    Select an Agent
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => dispatch(setSelectedAgentId(null))}
+                    className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition ${
+                      !selectedAgentId
+                        ? "border-violet-400/40 bg-violet-500/20 text-white"
+                        : "border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    {msg.type === "hitl-email" ? (
-                      <HitlEmailDraftCard
-                        msg={msg}
-                        onApprove={handleApproveDraft}
-                        onReject={handleRejectDraft}
-                        onUpdateDraft={handleUpdateDraft}
-                      />
-                    ) : (
+                    <Sparkles size={13} className="text-violet-300" />
+                    <span>Direct LLM</span>
+                  </button>
+                </div>
+
+                {loadingAgents && agentsList.length === 0 ? (
+                  <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-xs text-zinc-400">
+                    <Loader2 size={15} className="animate-spin" />
+                    <span>Loading your agents...</span>
+                  </div>
+                ) : agentsList.length > 0 ? (
+                  <section className="grid gap-3 sm:grid-cols-3">
+                    {agentsList.map((agent, idx) => {
+                      const id = getAgentId(agent) || `agent-${idx}`;
+                      return (
+                        <AgentTiltCard
+                          key={id}
+                          agent={agent}
+                          isSelected={
+                            String(getAgentId(activeAgent)) === String(id)
+                          }
+                          onSelect={() => dispatch(setSelectedAgentId(id))}
+                        />
+                      );
+                    })}
+                  </section>
+                ) : (
+                  <div
+                    className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4 text-xs ${darkPanel}`}
+                  >
+                    <span className="text-zinc-400">
+                      You haven&apos;t created any custom agents yet.
+                    </span>
+                    <Link
+                      to="/agent/new"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-100"
+                    >
+                      <Plus size={14} />
+                      <span>Create Agent</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </ModernReveal>
+
+            {/* Starter Prompts (Shown when chat is empty) */}
+            {messages.length === 0 && (
+              <ModernReveal rootRef={mainRef} delay={60} y={20} blur={5}>
+                <section className="space-y-2">
+                  <p className="text-xs font-medium text-zinc-400">
+                    Try a starter prompt
+                  </p>
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    {STARTER_PROMPTS.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => sendMessage(item)}
+                        className="group flex cursor-pointer items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-left text-xs text-zinc-300 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.07] hover:text-white active:scale-[0.985]"
+                      >
+                        <span className="line-clamp-2">{item}</span>
+                        <ArrowUp
+                          size={14}
+                          className="shrink-0 rotate-45 text-zinc-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              </ModernReveal>
+            )}
+
+            {/* Live Chat Messages Feed */}
+            {messages.length > 0 && (
+              <ModernReveal rootRef={mainRef} delay={40} y={16} blur={4}>
+                <section className="space-y-3 rounded-3xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl sm:p-5">
+                  {messages.map((msg, idx) => (
+                    <div
+                      key={msg._id || msg.id || idx}
+                      className={`animate-msg-pop flex ${
+                        msg.role === "user" ? "justify-end" : "justify-start"
+                      }`}
+                    >
                       <div
                         className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed sm:text-sm ${
-                          msg.sender === "user"
+                          msg.role === "user"
                             ? "bg-white font-medium text-zinc-950 shadow-[0_6px_24px_rgba(255,255,255,0.14)]"
                             : "border border-white/10 bg-white/[0.06] text-zinc-200"
                         }`}
                       >
-                        {msg.sender === "assistant" && (
-                          <p className="mb-1 text-[11px] font-medium text-zinc-400">
-                            {msg.agentName}
-                          </p>
+                        {msg.role === "assistant" ? (
+                          <>
+                            <p className="mb-1.5 text-[11px] font-medium text-zinc-400">
+                              {activeAgentName}
+                            </p>
+                            <MarkdownMessage content={msg.context} />
+                          </>
+                        ) : (
+                          <p className="whitespace-pre-wrap">{msg.context}</p>
                         )}
-                        <p>{msg.text}</p>
                       </div>
-                    )}
-                  </div>
-                ))}
-                <div ref={chatEndRef} />
-              </section>
-            </ModernReveal>
+                    </div>
+                  ))}
+
+                  {isSending && (
+                    <div className="animate-msg-pop flex justify-start">
+                      <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-xs text-zinc-300">
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>{activeAgentName} is thinking...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div ref={chatEndRef} />
+                </section>
+              </ModernReveal>
+            )}
           </div>
 
+          {/* Sticky Chat Input Bar */}
           <form
-            onSubmit={handleDemoSubmit}
+            onSubmit={handleSubmit}
             className="group/bar sticky bottom-0 flex items-center gap-2 rounded-2xl border border-white/10 bg-[#181a20]/90 p-2 shadow-2xl backdrop-blur-xl transition-all duration-300 focus-within:border-white/25 focus-within:shadow-[0_0_28px_rgba(255,255,255,0.06)]"
           >
             <Input
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={`Try: "Send an email to friend@example.com about meeting"...`}
+              disabled={isSending}
+              placeholder={`Message ${activeAgentName}...`}
               className="h-10 flex-1 border-0 bg-transparent text-sm text-white placeholder:text-zinc-500 focus-visible:ring-0"
             />
             <Button
               type="submit"
-              className="group/send h-10 rounded-xl bg-white px-4 text-xs font-semibold text-zinc-950 transition-all duration-200 hover:bg-zinc-200 active:scale-[0.97]"
+              disabled={!prompt.trim() || isSending}
+              className="group/send h-10 cursor-pointer rounded-xl bg-white px-4 text-xs font-semibold text-zinc-950 transition-all duration-200 hover:bg-zinc-200 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <Send
-                size={14}
-                className="mr-1.5 transition-transform duration-200 group-hover/send:translate-x-0.5 group-hover/send:-translate-y-0.5"
-              />
-              <span>Send</span>
+              {isSending ? (
+                <Loader2 size={14} className="mr-1.5 animate-spin" />
+              ) : (
+                <Send
+                  size={14}
+                  className="mr-1.5 transition-transform duration-200 group-hover/send:translate-x-0.5 group-hover/send:-translate-y-0.5"
+                />
+              )}
+              <span>{isSending ? "Sending" : "Send"}</span>
             </Button>
           </form>
         </main>
       </div>
 
+      {/* Animated Toast Notification */}
       {toast && (
         <div
           role="status"

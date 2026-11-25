@@ -26,6 +26,7 @@ import {
   setAgents,
 } from "./features/agent/agentSlice";
 import useAgent from "./features/agent/hooks/useAgent";
+import Home from "./pages/Home";
 
 const protectedRoute = [
   "/",
@@ -122,6 +123,7 @@ function App() {
       {/* Protected Studio Routes */}
       <Route element={<Protectedroute />}>
         <Route path="/" element={<NewHome />} />
+        <Route path="/old/home" element={<Home />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route path="/agents" element={<Agents />} />
         <Route path="/agents/old" element={<OldAgents />} />

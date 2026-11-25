@@ -63,6 +63,7 @@ function NewHome() {
   const handleInput = async (e) => {
     e.preventDefault();
     try {
+      setIsSending(true)
       const messageData = { role: "user", context: input.trim() };
       setInput("");
       dispatch(setNewMessage(messageData));
@@ -75,6 +76,8 @@ function NewHome() {
       );
     } catch (error) {
       //
+    }finally{
+      setIsSending(false)
     }
   };
 
