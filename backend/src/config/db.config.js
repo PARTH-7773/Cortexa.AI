@@ -8,7 +8,6 @@ if (!cached) {
 
 
 async function connectDB() {
-  console.log(mongoose.connection.readyState)
   if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
   }
