@@ -18,32 +18,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "http://localhost:5173",
-  "https://cortexaai-git-main-parth-7773s-projects.vercel.app",
-  "https://cortexaai-gamma.vercel.app",
-  "https://cortexa-qqevjj7kw-parth-7773s-projects.vercel.app"
-].filter(Boolean);
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl/server-to-server)
-      if (!origin) return callback(null, true);
-      if (
-        allowedOrigins.includes(origin) ||
-        origin.endsWith(".vercel.app")
-      ) {
-        return callback(null, true);
-      }
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use(cors({
+  origin: ["https://cortexa-dev.vercel.app", "http://localhost:5173"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 app.use(cookieParser());
 
 connectDB().catch((err) => {

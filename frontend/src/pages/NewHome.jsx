@@ -251,11 +251,11 @@ function NewHome() {
                   <div
                     key={i}
                     className={`flex ${
-                      message.role === "user" ? "justify-end" : "justify-start"
+                      message.role === "user" ? "justify-end mr-4" : "justify-start"
                     }`}
                   >
                     {message.role === "assistant" && (
-                      <div className="mr-1 mt-2 ml-2 grid size-8 shrink-0 place-items-center rounded-lg bg-white text-zinc-900">
+                      <div className="mt-2 ml-4 grid size-8 shrink-0 place-items-center rounded-lg bg-white text-zinc-900">
                         <Workflow size={15} />
                       </div>
                     )}
