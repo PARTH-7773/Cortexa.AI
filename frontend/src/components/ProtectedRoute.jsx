@@ -20,5 +20,5 @@ export default function Protectedroute({ children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return children ? { children } : <Outlet />;
+  return children ? children : <Outlet />;
 }

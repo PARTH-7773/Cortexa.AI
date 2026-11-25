@@ -48,16 +48,10 @@ function App() {
   const loading = useSelector(selectAuthLoading);
 
   useEffect(() => {
-    const isProtected = protectedRoute.includes(location.pathname);
-
-    // Skip /me API call on public routes like /login or 404
-    if (!isProtected) {
-      if (!initialized) {
-        dispatch(setInitialized());
-      }
+    if (location.pathname === "/login" && initialized) {
       return;
     }
-
+    
     if (initialized && user) return;
 
     let isMounted = true;

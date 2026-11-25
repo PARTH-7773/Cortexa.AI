@@ -122,7 +122,7 @@ export default function NotFound() {
           </button>
 
           <Link
-            to="/"
+            to="/home"
             className="flex-1 rounded-xl bg-gradient-to-r from-rose-200 via-pink-200 to-amber-200 px-5 py-2.5 text-sm font-semibold text-rose-950 transition duration-200 hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0"
           >
             Back to Studio
