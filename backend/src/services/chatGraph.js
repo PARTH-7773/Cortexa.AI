@@ -1,13 +1,8 @@
-import {
-  MessagesAnnotation,
-  StateGraph,
-  START,
-  END,
-} from "@langchain/langgraph";
+import { MessagesAnnotation, StateGraph } from "@langchain/langgraph";
 import { MongoClient } from "mongodb";
 import { MongoDBSaver } from "@langchain/langgraph-checkpoint-mongodb";
 
-import llm from "../config/llm.cofig.js";
+import llm from "../config/llm.config.js";
 import config from "../config/ENV.config.js";
 
 const mongoClient = new MongoClient(config.MONGO_URL);
