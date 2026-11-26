@@ -1,20 +1,23 @@
 <p align="center">
-  <img src="frontend/public/favicon.svg" width="60" alt="Automation AI Logo" />
+  <img src="frontend/public/favicon.svg" width="68" alt="Cortexa Logo" />
 </p>
 
-<h1 align="center">Automation AI</h1>
+<h1 align="center">Cortexa — Automation AI</h1>
 
 <p align="center">
-  A full-stack <strong>AI Agent Orchestration Platform</strong> with multi-agent workflows, MCP tool integrations, and human-in-the-loop (HITL) approval guardrails.
+  A full-stack <strong>Autonomous Multi-Agent AI Platform</strong> engineered with <strong>LangGraph</strong>, <strong>Model Context Protocol (MCP)</strong>, <strong>Groq LLM</strong>, <strong>Tavily Search</strong>, and <strong>Human-in-the-Loop (HITL)</strong> approval guardrails.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-19-blue?logo=react" alt="React" />
-  <img src="https://img.shields.io/badge/Express-5-black?logo=express" alt="Express" />
-  <img src="https://img.shields.io/badge/MongoDB-Mongoose_9-green?logo=mongodb" alt="MongoDB" />
-  <img src="https://img.shields.io/badge/Firebase-Auth-orange?logo=firebase" alt="Firebase" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss" alt="Tailwind" />
-  <img src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite" alt="Vite" />
+  <img src="https://img.shields.io/badge/LangGraph-1.7-blue?logo=chainlink" alt="LangGraph" />
+  <img src="https://img.shields.io/badge/Model_Context_Protocol-MCP-purple" alt="MCP" />
+  <img src="https://img.shields.io/badge/Groq-Qwen_27B-orange?logo=fastapi" alt="Groq" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react" alt="React 19" />
+  <img src="https://img.shields.io/badge/Express-5-000000?logo=express" alt="Express 5" />
+  <img src="https://img.shields.io/badge/MongoDB-Mongoose_9-47A248?logo=mongodb" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase" alt="Firebase" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss" alt="Tailwind 4" />
+  <img src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite" alt="Vite 8" />
 </p>
 
 ---
@@ -22,166 +25,181 @@
 ## 📋 Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
+- [Key Features](#key-features)
+- [Architecture & Workflow](#architecture--workflow)
 - [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
+- [Project Directory Structure](#project-directory-structure)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
-  - [1. Clone the Repository](#1-clone-the-repository)
+  - [1. Clone Repository](#1-clone-repository)
   - [2. Backend Setup](#2-backend-setup)
   - [3. Frontend Setup](#3-frontend-setup)
-  - [4. Firebase Setup](#4-firebase-setup)
+  - [4. Firebase Configuration](#4-firebase-configuration)
 - [Environment Variables](#environment-variables)
+  - [Backend Configuration (`.env.example`)](#backend-configuration-envexample)
+  - [Frontend Configuration (`.env.example`)](#frontend-configuration-envexample)
 - [Available Scripts](#available-scripts)
 - [API Reference](#api-reference)
-  - [Auth Endpoints](#auth-endpoints)
-  - [Agent Endpoints](#agent-endpoints)
+  - [Authentication Endpoints (`/api/auth`)](#authentication-endpoints-apiauth)
+  - [Agent Management Endpoints (`/api/agent`)](#agent-management-endpoints-apiagent)
+  - [AI & Multi-Agent Execution Endpoints (`/api/ai`)](#ai--multi-agent-execution-endpoints-apiai)
 - [Database Models](#database-models)
-- [Frontend Pages & Routes](#frontend-pages--routes)
-- [State Management](#state-management)
-- [Contributing](#contributing)
+- [Vercel Deployment Guide](#vercel-deployment-guide)
+- [Security Best Practices](#security-best-practices)
 - [License](#license)
 
 ---
 
 ## Overview
 
-**Automation AI** is a platform that lets users create, manage, and orchestrate AI agents equipped with tools (web search, email, calculator) and MCP (Model Context Protocol) integrations. It features a demo chat workspace with real-time agent interaction, human-in-the-loop email drafting approval, and an integrations dashboard for connecting external services.
+**Cortexa (Automation AI)** is an enterprise-grade agentic workflow platform. Users can create specialized, custom-prompted AI agents, equip them with tools via the **Model Context Protocol (MCP)**, execute real-time web searches with **Tavily**, and engage in multi-turn conversational reasoning backed by **LangGraph** with persistent **MongoDB thread checkpoints**. Sensitive actions (such as sending emails or publishing social posts) are guarded with an integrated **Human-in-the-Loop (HITL)** approval flow.
 
 ---
 
-## Features
+## Key Features
 
-- 🔐 **Google OAuth Authentication** — Sign in via Firebase Google Auth with secure JWT session cookies
-- 🤖 **AI Agent CRUD** — Create, view, list, and delete custom AI agents with configurable tools
-- 💬 **Interactive Chat Workspace** — Demo chat interface with agent-based responses and email command detection
-- ✉️ **Human-in-the-Loop Email Drafts** — AI-drafted emails require human approval before sending
-- 🔧 **MCP Tool Integrations** — Connect Gmail, Instagram, X (Twitter), Web Search, and Calculator tools
-- 🛡️ **HITL Guardrails** — Toggle human-in-the-loop requirements per integration
-- 🎨 **Modern Glass-Morphism UI** — Polished dark theme with tilt-cards, parallax scrolling, and scroll-aware headers
-- 📱 **Responsive Design** — Fully responsive across desktop and mobile viewports
+- 🧠 **Dynamic LangGraph StateGraph** — State-managed AI graphs capable of reasoning, tool calls, and automated cyclic execution.
+- 🔌 **Model Context Protocol (MCP)** — Native integration with MCP servers using `@langchain/mcp-adapters` for extensible tools over standard I/O transports.
+- ⚡ **Ultra-Fast LLM Inference** — Powered by Groq's high-throughput LPU running state-of-the-art open-weights models (`qwen/qwen3.8-27b`).
+- 🌐 **Live Web Search** — Real-time factual retrieval powered by the Tavily Search API.
+- 💾 **Persistent Thread Checkpointing** — Conversation state and tool-call history persist to MongoDB collections via `@langchain/langgraph-checkpoint-mongodb`.
+- 🛡️ **Human-in-the-Loop (HITL) Guardrails** — Sensitive operations trigger interactive approval cards before execution.
+- 🔐 **Secure Google OAuth Authentication** — Seamless sign-in via Firebase Web SDK with backend token verification and HTTP-only signed JWT cookies.
+- 🎨 **Modern Glassmorphic UI** — Built on React 19, Tailwind CSS v4, shadcn UI components, and Redux Toolkit.
+- 🚀 **Fullstack Monorepo Deployment** — Pre-configured `vercel.json` for seamless deployment of both Express API serverless functions and Vite SPA client.
+
+---
+
+## Architecture & Workflow
+
+```
+                                      ┌────────────────────────┐
+                                      │   User (React 19 UI)   │
+                                      └───────────┬────────────┘
+                                                  │
+                                          HTTP /api/ai/agent
+                                                  │
+                                      ┌───────────▼────────────┐
+                                      │ Express.js Auth & API  │
+                                      └───────────┬────────────┘
+                                                  │
+                                      ┌───────────▼────────────┐
+                                      │  LangGraph StateGraph  │
+                                      └─────┬────────────┬─────┘
+                                            │            │
+                   ┌────────────────────────┘            └─────────────────────────┐
+                   ▼                                                               ▼
+        ┌─────────────────────┐                                         ┌─────────────────────┐
+        │     Chat Node       │◄───────────── Cyclic Loop ─────────────►│      Tool Node      │
+        │ (Groq Qwen 27B LLM) │                                         │ (MCP / Tavily Search│
+        └──────────┬──────────┘                                         └──────────┬──────────┘
+                   │                                                               │
+                   │                                                    Requires Approval?
+                   ▼                                                               │
+        ┌─────────────────────┐                                                    ▼
+        │    MongoDB Saver    │                                         ┌─────────────────────┐
+        │ (Thread Checkpoint) │                                         │ Human-in-the-Loop   │
+        └─────────────────────┘                                         │   Approval Node     │
+                                                                        └─────────────────────┘
+```
 
 ---
 
 ## Tech Stack
 
 ### Backend
-
-| Dependency         | Version | Purpose                                   |
-| ------------------ | ------- | ----------------------------------------- |
-| **express**        | ^5.3.0  | Web framework & REST API                  |
-| **mongoose**       | ^9.12.0 | MongoDB ODM for data modeling             |
-| **firebase-admin** | ^14.5.1 | Server-side Firebase token verification   |
-| **jsonwebtoken**   | ^9.0.3  | JWT generation & validation for sessions  |
-| **cookie-parser**  | ^1.4.7  | Parse cookies from HTTP requests          |
-| **cors**           | ^2.8.6  | Cross-origin resource sharing middleware  |
-| **dotenv**         | ^18.0.9 | Environment variable management           |
-| **nodemon**        | ^3.1.14 | Auto-restart server on file changes (dev) |
+| Technology | Version | Purpose |
+|---|---|---|
+| **Express.js** | `^5.3.0` | Next-generation Web Framework & REST API |
+| **@langchain/langgraph** | `^1.7.5` | Cyclic multi-agent graph orchestrator |
+| **@langchain/groq** | `^1.3.2` | Groq cloud LLM provider integration |
+| **@langchain/tavily** | `^1.2.1` | Tavily live internet search engine integration |
+| **@langchain/mcp-adapters** | `^2.0.3` | Model Context Protocol adapter for LangChain |
+| **@modelcontextprotocol/server** | `^2.4.0` | MCP Server SDK over stdio transport |
+| **@langchain/langgraph-checkpoint-mongodb** | `^1.5.2` | Persistent thread memory storage in MongoDB |
+| **mongoose** & **mongodb** | `^9.12.0` / `^7.9.1` | MongoDB Object Data Modeling and native client |
+| **firebase-admin** | `^14.5.1` | Server-side Firebase ID token verification |
+| **jsonwebtoken** | `^9.0.3` | JWT generation & verification for auth sessions |
+| **cookie-parser** & **cors** | `^1.4.7` / `^2.8.6` | Cookie handling and Cross-Origin Resource Sharing |
+| **zod** | `^4.6.7` | Declarative schema validation |
+| **dotenv** | `^18.0.9` | Environment variable loader |
 
 ### Frontend
-
-| Dependency                   | Version | Purpose                         |
-| ---------------------------- | ------- | ------------------------------- |
-| **react**                    | ^19.3.1 | UI library                      |
-| **react-dom**                | ^19.3.1 | React DOM renderer              |
-| **react-router-dom**         | ^7.18.5 | Client-side routing             |
-| **@reduxjs/toolkit**         | ^2.14.0 | State management                |
-| **react-redux**              | ^9.3.1  | React bindings for Redux        |
-| **axios**                    | ^1.21.1 | HTTP client for API calls       |
-| **firebase**                 | ^13.3.0 | Firebase Auth (Google sign-in)  |
-| **tailwindcss**              | ^4.3.5  | Utility-first CSS framework     |
-| **@tailwindcss/vite**        | ^4.3.5  | Tailwind CSS Vite plugin        |
-| **shadcn**                   | ^4.23.0 | Accessible UI component library |
-| **@base-ui/react**           | ^1.9.0  | Base UI primitives for shadcn   |
-| **lucide-react**             | ^1.72.0 | Icon library                    |
-| **react-icons**              | ^5.7.0  | Additional icon sets            |
-| **class-variance-authority** | ^0.7.1  | Component variant utility       |
-| **tw-animate-css**           | ^1.4.0  | Tailwind animation utilities    |
-
-### Dev Dependencies (Frontend)
-
-| Dependency               | Version  | Purpose                 |
-| ------------------------ | -------- | ----------------------- |
-| **vite**                 | ^8.3.6   | Build tool & dev server |
-| **@vitejs/plugin-react** | ^6.1.2   | React support for Vite  |
-| **eslint**               | ^10.14.0 | Code linting            |
+| Technology | Version | Purpose |
+|---|---|---|
+| **React** & **React DOM** | `^19.3.1` | Modern concurrent UI library |
+| **Vite** | `^8.3.6` | Next-generation frontend build tool |
+| **Tailwind CSS** | `^4.3.5` | Modern utility-first styling engine |
+| **React Router DOM** | `^7.18.5` | Client-side routing and protected navigations |
+| **@reduxjs/toolkit** & **react-redux** | `^2.14.0` / `^9.3.1` | Predictable centralized state management |
+| **Firebase** | `^13.3.0` | Firebase Web Client SDK (Google Authentication) |
+| **shadcn** & **@base-ui/react** | `^4.23.0` / `^1.9.0` | Accessible, customizable UI primitives |
+| **lucide-react** & **react-icons** | `^1.72.0` / `^5.7.0` | Icon sets |
+| **axios** | `^1.21.1` | Promise-based HTTP client |
 
 ---
 
-## Project Structure
+## Project Directory Structure
 
 ```
 Automation_AI/
+├── package.json                         # Monorepo root configuration & scripts
+├── vercel.json                          # Vercel deployment & serverless routing
+├── .gitignore                           # Git ignore rules for credentials & builds
+│
 ├── backend/
-│   ├── server.js                        # Entry point — starts Express + connects DB
-│   ├── package.json
-│   ├── .env                             # Backend environment variables
-│   ├── serviceAccountKey.json           # Firebase Admin SDK service account (DO NOT commit)
+│   ├── server.js                        # Local development server entry point
+│   ├── package.json                     # Backend dependencies & overrides
+│   ├── .env.example                     # Environment template (NO real secrets)
+│   ├── serviceAccountKey.json           # Firebase Admin key (Git-ignored)
 │   └── src/
-│       ├── index.js                     # Express app setup (middleware, routes)
+│       ├── index.js                     # Express app, CORS, routes & middleware
 │       ├── config/
-│       │   ├── ENV.config.js            # Env variable validation & export
-│       │   ├── db.config.js             # MongoDB connection
-│       │   └── firebase.js              # Firebase Admin initialization
+│       │   ├── ENV.config.js            # Environment validation & exports
+│       │   ├── db.config.js             # Mongoose connection with serverless cache
+│       │   ├── firebase.js              # Resilient Firebase Admin initializer
+│       │   └── llm.config.js            # Groq Qwen LLM configuration
 │       ├── controllers/
 │       │   ├── auth.controller.js       # Login, logout, getMe handlers
-│       │   └── agent.controller.js      # Agent CRUD handlers
+│       │   ├── agent.controller.js      # Agent CRUD operations
+│       │   └── chat.controller.js       # LangGraph AI chat & Agent graph invoke
 │       ├── middlewares/
-│       │   └── auth.middleware.js        # JWT verification middleware
+│       │   └── auth.middleware.js        # JWT token authentication middleware
 │       ├── models/
-│       │   ├── user.model.js            # User Mongoose schema
-│       │   └── agent.model.js           # Agent Mongoose schema
-│       └── routes/
-│           ├── auth.route.js            # Auth route definitions
-│           └── agent.route.js           # Agent route definitions
+│       │   ├── user.model.js            # User database schema
+│       │   └── agent.model.js           # Agent database schema
+│       ├── routes/
+│       │   ├── auth.route.js            # /api/auth routes
+│       │   ├── agent.route.js           # /api/agent routes
+│       │   └── chat.route.js            # /api/ai routes
+│       └── services/
+│           ├── chatGraph.js             # Basic conversational StateGraph
+│           ├── graph/
+│           │   └── agent.graph.js       # Multi-agent LangGraph with MCP tools & HITL
+│           └── mcp/
+│               ├── mcp-adapter.js       # LangChain adapter for MCP servers
+│               └── servers/
+│                   └── server.js        # MCP Server providing web_search (Tavily)
 │
 ├── frontend/
-│   ├── index.html                       # HTML entry point
-│   ├── vite.config.js                   # Vite configuration
-│   ├── package.json
-│   ├── .env                             # Frontend environment variables
-│   ├── components.json                  # shadcn configuration
-│   ├── public/
-│   │   ├── favicon.svg
-│   │   └── icons.svg
+│   ├── index.html                       # HTML document template
+│   ├── vite.config.js                   # Vite bundler & path aliases
+│   ├── package.json                     # Frontend dependencies
+│   ├── .env.example                     # Frontend environment template
+│   ├── components.json                  # shadcn component settings
 │   └── src/
-│       ├── main.jsx                     # React entry (Provider + BrowserRouter)
-│       ├── App.jsx                      # Route definitions
-│       ├── firebase.js                  # Firebase client initialization
+│       ├── main.jsx                     # Application bootstrap (Redux + Router)
+│       ├── App.jsx                      # Route configurations & auth guards
+│       ├── firebase.js                  # Firebase Client SDK configuration
 │       ├── api/
-│       │   └── axios.js                 # Axios instance with base URL
+│       │   └── axios.js                 # Axios instance with credentials
 │       ├── app/
-│       │   └── store.js                 # Redux store configuration
+│       │   └── store.js                 # Redux Toolkit store setup
 │       ├── features/
-│       │   ├── auth/
-│       │   │   ├── auth.api.js          # Auth API calls (login, logout, getMe)
-│       │   │   ├── authSlice.js         # Auth Redux slice
-│       │   │   └── hooks/
-│       │   │       └── useAuth.js       # Auth custom hook
-│       │   └── agent/
-│       │       ├── agents.api.js        # Agent API calls (CRUD)
-│       │       └── hooks/
-│       │           └── useAgent.js      # Agent custom hook
-│       ├── components/
-│       │   ├── login-form.jsx           # Google sign-in form
-│       │   ├── ProtectedRoute.jsx       # Auth guard component
-│       │   └── ui/                      # shadcn UI components
-│       │       ├── button.jsx
-│       │       ├── card.jsx
-│       │       ├── dropdown-menu.jsx
-│       │       ├── field.jsx
-│       │       ├── input.jsx
-│       │       ├── label.jsx
-│       │       ├── separator.jsx
-│       │       └── textarea.jsx
-│       ├── pages/
-│       │   ├── Login.jsx                # Login page
-│       │   ├── Home.jsx                 # Main dashboard with chat workspace
-│       │   ├── Agents.jsx               # Agent listing page
-│       │   ├── CreateAgent.jsx          # Agent creation form
-│       │   └── Integrations.jsx         # MCP integrations dashboard
-│       └── lib/
-│           └── utils.js                 # Utility functions (cn)
+│       │   ├── auth/                    # Auth slice, APIs, and custom hooks
+│       │   └── agent/                   # Agent state, APIs, and custom hooks
+│       ├── components/                  # UI components, layouts & login form
+│       └── pages/                       # Login, Home, Agents, CreateAgent, Integrations
 │
 └── README.md
 ```
@@ -190,21 +208,20 @@ Automation_AI/
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
+Ensure you have the following installed before running the project:
 
-| Tool                 | Version | Download                                                                                                         |
-| -------------------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
-| **Node.js**          | >= 18.x | [nodejs.org](https://nodejs.org/)                                                                                |
-| **npm**              | >= 9.x  | Comes with Node.js                                                                                               |
-| **MongoDB**          | >= 6.x  | [mongodb.com](https://www.mongodb.com/try/download/community) or use [MongoDB Atlas](https://cloud.mongodb.com/) |
-| **Firebase Project** | —       | [Firebase Console](https://console.firebase.google.com/)                                                         |
-| **Git**              | Latest  | [git-scm.com](https://git-scm.com/)                                                                              |
+- **Node.js**: `v20.x` or `v22.x` (LTS recommended)
+- **npm**: `v10.x` or higher
+- **MongoDB**: Local MongoDB instance (`mongodb://localhost:27017`) or [MongoDB Atlas](https://www.mongodb.com/atlas) connection string
+- **Groq Cloud Account**: Free API key from [Groq Console](https://console.groq.com/keys)
+- **Tavily AI Account**: Free API key from [Tavily](https://tavily.com/)
+- **Firebase Project**: Created via [Firebase Console](https://console.firebase.google.com/)
 
 ---
 
 ## Getting Started
 
-### 1. Clone the Repository
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/<your-username>/Automation_AI.git
@@ -220,388 +237,205 @@ cd backend
 # Install dependencies
 npm install
 
-# Create environment file
+# Create environment file from template
 cp .env.example .env
-# Edit .env with your values (see Environment Variables section)
 
-# Start development server
-npm run dev
+# Edit .env with your credentials (see Environment Variables section)
 ```
 
-The backend server will start at **`http://localhost:8080`** (or your configured `PORT`).
+Place your Firebase Admin private key at `backend/serviceAccountKey.json` (or set `FIREBASE_SERVICE_ACCOUNT` in `.env`).
+
+```bash
+# Start backend in development mode
+npm run dev
+```
+The backend server runs at **`http://localhost:5000`** (or your configured `PORT`).
 
 ### 3. Frontend Setup
 
+Open a new terminal window:
+
 ```bash
-# Navigate to frontend directory (from project root)
+# Navigate to frontend directory
 cd frontend
 
 # Install dependencies
 npm install
 
-# Create environment file
+# Create environment file from template
 cp .env.example .env
-# Edit .env with your values (see Environment Variables section)
 
-# Start development server
+# Start frontend development server
 npm run dev
 ```
+The frontend dev server runs at **`http://localhost:5173`**.
 
-The frontend dev server will start at **`http://localhost:5173`**.
+### 4. Firebase Configuration
 
-### 4. Firebase Setup
-
-1. Go to the [Firebase Console](https://console.firebase.google.com/) and create a new project (or use an existing one).
-2. **Enable Google Authentication:**
-   - Navigate to **Authentication → Sign-in method → Google** and enable it.
-3. **Generate a Service Account Key (Backend):**
-   - Go to **Project Settings → Service Accounts → Generate New Private Key**.
-   - Save the downloaded JSON as `backend/serviceAccountKey.json`.
-
-   > ⚠️ **Never commit `serviceAccountKey.json` to version control.** Add it to `.gitignore`.
-
-4. **Get Firebase Web Config (Frontend):**
-   - Go to **Project Settings → General → Your apps → Web app**.
-   - Copy the `apiKey` and set it as `VITE_FIREBASE_API_KEY` in `frontend/.env`.
+1. In the [Firebase Console](https://console.firebase.google.com/):
+   - Navigate to **Authentication ➔ Sign-in method** and enable **Google**.
+   - Navigate to **Authentication ➔ Settings ➔ Authorized Domains** and add:
+     - `localhost`
+     - Your production domain (e.g., `your-app.vercel.app`)
+2. In **Project Settings ➔ Service Accounts**:
+   - Click **Generate New Private Key**.
+   - Save the file as `backend/serviceAccountKey.json`.
+3. In **Project Settings ➔ General ➔ Your apps (Web app)**:
+   - Copy `apiKey` and set it as `VITE_FIREBASE_API_KEY` in `frontend/.env`.
 
 ---
 
 ## Environment Variables
 
-### Backend (`backend/.env`)
+### Backend Configuration (`.env.example`)
 
-| Variable     | Description                       | Example                                   |
-| ------------ | --------------------------------- | ----------------------------------------- |
-| `PORT`       | Server port number                | `8080`                                    |
-| `MONGO_URL`  | MongoDB connection string         | `mongodb://localhost:27017/automation_ai` |
-| `JWT_SECRET` | Secret key for signing JWT tokens | `your_super_secret_jwt_key_here`          |
+Reference file: [`backend/.env.example`](file:///e:/Development/import-with-Backend/Agentic%20AI/Project_Agentic_AI/Automation_AI/backend/.env.example)
 
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `PORT` | No | `5000` | Local HTTP server port |
+| `MONGO_URL` | **Yes** | — | MongoDB connection string (Local or MongoDB Atlas) |
+| `JWT_SECRET` | **Yes** | — | Secret string for signing auth session JWT tokens |
+| `GROQ_API_KEY` | **Yes** | — | API key for Groq LLM inference (`ChatGroq`) |
+| `TAVILY_API_KEY` | **Yes** | — | API key for real-time web search in MCP server |
+| `FIREBASE_SERVICE_ACCOUNT` | Cloud only | — | Full JSON string of `serviceAccountKey.json` for Vercel/cloud hosting |
+
+Example `backend/.env`:
 ```env
-PORT=8080
-MONGO_URL=mongodb://localhost:27017/automation_ai
+PORT=5000
+MONGO_URL=mongodb://localhost:27017/cortexa_ai
 JWT_SECRET=your_super_secret_jwt_key_here
+GROQ_API_KEY=gsk_your_groq_api_key_here
+TAVILY_API_KEY=tvly-your_tavily_api_key_here
 ```
 
-### Frontend (`frontend/.env`)
+### Frontend Configuration (`.env.example`)
 
-| Variable                | Description          | Example                     |
-| ----------------------- | -------------------- | --------------------------- |
-| `VITE_FIREBASE_API_KEY` | Firebase Web API key | `AIzaSyXXXXXXXXXXXXXXXXXX`  |
-| `VITE_SERVER_URL`       | Backend API base URL | `http://localhost:8080/api` |
+Reference file: [`frontend/.env.example`](file:///e:/Development/import-with-Backend/Agentic%20AI/Project_Agentic_AI/Automation_AI/frontend/.env.example)
 
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `VITE_FIREBASE_API_KEY` | **Yes** | — | Firebase Web API Key for client-side Google OAuth popup |
+| `VITE_SERVER_URL` | No | `/api` | Backend API Base URL (`http://localhost:5000/api` for local) |
+
+Example `frontend/.env`:
 ```env
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_SERVER_URL=http://localhost:8080/api
+VITE_FIREBASE_API_KEY=AIzaSy_your_firebase_api_key_here
+VITE_SERVER_URL=http://localhost:5000/api
 ```
 
 ---
 
 ## Available Scripts
 
-### Backend
+### Root Monorepo
+| Command | Description |
+|---|---|
+| `npm run build` | Builds the frontend project (`npm --prefix frontend run build`) |
 
-| Command       | Description                                                 |
-| ------------- | ----------------------------------------------------------- |
-| `npm run dev` | Start the server with **nodemon** (auto-restart on changes) |
-| `npm test`    | Run tests (not configured yet)                              |
+### Backend (`/backend`)
+| Command | Description |
+|---|---|
+| `npm run dev` | Runs backend with `nodemon` for auto-reloading on changes |
+| `npm start` | Runs backend production server with `node server.js` |
 
-### Frontend
-
-| Command           | Description                          |
-| ----------------- | ------------------------------------ |
-| `npm run dev`     | Start Vite dev server with HMR       |
-| `npm run build`   | Build optimized production bundle    |
-| `npm run preview` | Preview the production build locally |
-| `npm run lint`    | Run ESLint to check for code issues  |
+### Frontend (`/frontend`)
+| Command | Description |
+|---|---|
+| `npm run dev` | Starts Vite HMR dev server |
+| `npm run build` | Generates production build in `dist/` |
+| `npm run preview` | Previews production build locally |
+| `npm run lint` | Runs ESLint to check for code issues |
 
 ---
 
 ## API Reference
 
-**Base URL:** `http://localhost:8080/api`
+Base URL: `http://localhost:5000/api` (Local) or `/api` (Production)
 
-All responses follow this format:
+### Authentication Endpoints (`/api/auth`)
 
-```json
-{
-  "success": true | false,
-  "message": "Description of the result",
-  "data": { }
-}
-```
-
-### Auth Endpoints
-
-Authentication uses Firebase Google sign-in on the frontend. The Firebase ID token is sent to the backend, which verifies it, creates/updates the user in MongoDB, and returns a JWT session cookie.
-
-| Method | Endpoint           | Auth | Description                            |
-| ------ | ------------------ | ---- | -------------------------------------- |
-| `GET`  | `/api/auth/health` | ❌   | Health check                           |
-| `POST` | `/api/auth/login`  | ❌   | Login with Firebase token              |
-| `GET`  | `/api/auth/logout` | ❌   | Logout and clear session cookie        |
-| `GET`  | `/api/auth/me`     | ✅   | Get current authenticated user profile |
-
-#### `GET /api/auth/health`
-
-Health check endpoint.
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "message": "All good.."
-}
-```
-
----
+| Method | Endpoint | Auth Required | Description |
+|---|---|---|---|
+| `GET` | `/api/auth/health` | No | Server health check endpoint |
+| `POST` | `/api/auth/login` | No | Verifies Firebase ID token & sets session cookie |
+| `GET` | `/api/auth/logout` | No | Clears session cookie and logs user out |
+| `GET` | `/api/auth/me` | **Yes** | Retrieves currently authenticated user profile |
 
 #### `POST /api/auth/login`
-
-Authenticate a user with their Firebase ID token.
-
 **Request Body:**
-
 ```json
 {
-  "token": "<firebase_id_token>"
+  "token": "eyJhbGciOiJSUzI1NiIs..."
 }
 ```
-
-**Success Response (200):**
-
+**Response (200 OK):**
 ```json
 {
   "success": true,
   "message": "Successfull..",
   "user": {
-    "_id": "665a1b2c3d4e5f6a7b8c9d0e",
-    "firebaseUId": "abc123xyz",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "profilePicture": "https://lh3.googleusercontent.com/...",
-    "createdAt": "2024-06-01T10:00:00.000Z",
-    "updatedAt": "2024-06-01T10:00:00.000Z"
+    "_id": "67420f1b2c...",
+    "firebaseUId": "firebase_uid_123",
+    "name": "Alex Mercer",
+    "email": "alex@example.com",
+    "profilePicture": "https://lh3.googleusercontent.com/..."
   }
 }
 ```
 
-**Cookie Set:**
-| Name | Value | HttpOnly | Secure | SameSite | MaxAge |
-|---|---|---|---|---|---|
-| `token` | JWT string | ✅ | ❌ (dev) | Strict | 3 days |
-
-**Error Response (400):**
-
-```json
-{
-  "success": false,
-  "message": "Token not found"
-}
-```
-
 ---
 
-#### `GET /api/auth/logout`
+### Agent Management Endpoints (`/api/agent`)
 
-Clear the authentication cookie and log the user out.
+All agent routes require authentication via session cookie.
 
-**Success Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Logout Successfull..",
-  "user": null
-}
-```
-
----
-
-#### `GET /api/auth/me`
-
-Get the currently authenticated user's profile.
-
-**Headers:** Requires `token` cookie (set during login).
-
-**Success Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Getting the user profile.",
-  "user": {
-    "_id": "665a1b2c3d4e5f6a7b8c9d0e",
-    "firebaseUId": "abc123xyz",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "profilePicture": "https://lh3.googleusercontent.com/...",
-    "createdAt": "2024-06-01T10:00:00.000Z",
-    "updatedAt": "2024-06-01T10:00:00.000Z"
-  }
-}
-```
-
-**Error Response (401):**
-
-```json
-{
-  "success": false,
-  "message": "Unauthorized access"
-}
-```
-
----
-
-### Agent Endpoints
-
-All agent endpoints require authentication via the JWT cookie set during login.
-
-| Method   | Endpoint            | Auth | Description                         |
-| -------- | ------------------- | ---- | ----------------------------------- |
-| `POST`   | `/api/agent/create` | ✅   | Create a new AI agent               |
-| `GET`    | `/api/agent/all`    | ✅   | Get all agents for the current user |
-| `GET`    | `/api/agent/:id`    | ✅   | Get a specific agent by ID          |
-| `DELETE` | `/api/agent/:id`    | ✅   | Delete an agent by ID               |
+| Method | Endpoint | Auth Required | Description |
+|---|---|---|---|
+| `POST` | `/api/agent/create` | **Yes** | Creates a new agent with instructions & tools |
+| `GET` | `/api/agent/all` | **Yes** | Fetches all agents belonging to the logged-in user |
+| `GET` | `/api/agent/:id` | **Yes** | Fetches agent by ID |
+| `DELETE` | `/api/agent/:id` | **Yes** | Deletes agent by ID |
 
 #### `POST /api/agent/create`
+**Request Body:**
+```json
+{
+  "name": "Research Analyst",
+  "knowledgeBase": "You are an expert AI market research analyst.",
+  "instructions": "Search the web for up-to-date data, cite sources, and structure findings clearly.",
+  "tools": ["web_search", "calculator"]
+}
+```
 
-Create a new AI agent with custom configuration.
+---
+
+### AI & Multi-Agent Execution Endpoints (`/api/ai`)
+
+All AI invocation routes require authentication via session cookie.
+
+| Method | Endpoint | Auth Required | Description |
+|---|---|---|---|
+| `POST` | `/api/ai/chat` | **Yes** | General conversational chat graph with MongoDB memory |
+| `POST` | `/api/ai/agent` | **Yes** | Executes customized agent LangGraph with MCP tools |
+
+#### `POST /api/ai/agent`
+Executes the specific agent's LangGraph StateGraph, binding MCP tools and preserving per-user conversation threads in MongoDB.
 
 **Request Body:**
-
 ```json
 {
-  "name": "Research Assistant",
-  "knowledgeBase": "You are a helpful AI research assistant...",
-  "instructions": "Search the web for recent papers and summarize findings.",
-  "tools": ["web.search", "calculator"]
+  "agent": "Research Analyst",
+  "message": "What were the major AI breakthroughs announced this week?"
 }
 ```
 
-| Field           | Type       | Required | Description                                   |
-| --------------- | ---------- | -------- | --------------------------------------------- |
-| `name`          | `string`   | ✅       | Display name of the agent                     |
-| `knowledgeBase` | `string`   | ✅       | The agent's system prompt / knowledge context |
-| `instructions`  | `string`   | ✅       | Specific instructions for the agent           |
-| `tools`         | `string[]` | ❌       | Array of tool IDs to enable                   |
-
-**Available Tool IDs:**
-
-| Tool ID      | Display Name | Description                       |
-| ------------ | ------------ | --------------------------------- |
-| `calculator` | Calculator   | Perform mathematical calculations |
-| `web.search` | Web Search   | Search for information on the web |
-| `gmail.read` | Read Gmail   | Read and summarize emails         |
-| `gmail.send` | Send Emails  | Draft and send emails             |
-
-**Success Response (201):**
-
+**Response (200 OK):**
 ```json
 {
   "success": true,
-  "message": "Agent create successfully",
-  "agent": {
-    "_id": "665b2c3d4e5f6a7b8c9d0e1f",
-    "userId": "665a1b2c3d4e5f6a7b8c9d0e",
-    "name": "Research Assistant",
-    "knowledgeBase": "You are a helpful AI research assistant...",
-    "instructions": "Search the web for recent papers...",
-    "tools": ["web.search", "calculator"],
-    "isActive": true,
-    "createdAt": "2024-06-01T12:00:00.000Z",
-    "updatedAt": "2024-06-01T12:00:00.000Z"
-  }
-}
-```
-
-**Error Response (400):**
-
-```json
-{
-  "success": false,
-  "message": "All fields are required for creating new agent"
-}
-```
-
----
-
-#### `GET /api/agent/all`
-
-Retrieve all agents belonging to the authenticated user.
-
-**Success Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "All agents fetched",
-  "agent": [
-    {
-      "_id": "665b2c3d4e5f6a7b8c9d0e1f",
-      "userId": "665a1b2c3d4e5f6a7b8c9d0e",
-      "name": "Research Assistant",
-      "knowledgeBase": "...",
-      "instructions": "...",
-      "tools": ["web.search", "calculator"],
-      "isActive": true,
-      "createdAt": "2024-06-01T12:00:00.000Z",
-      "updatedAt": "2024-06-01T12:00:00.000Z"
-    }
-  ]
-}
-```
-
----
-
-#### `GET /api/agent/:id`
-
-Retrieve a specific agent by its MongoDB ObjectId.
-
-**URL Parameters:**
-
-| Parameter | Type     | Description                   |
-| --------- | -------- | ----------------------------- |
-| `id`      | `string` | MongoDB ObjectId of the agent |
-
-**Success Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "get agent succedded",
-  "agent": {
-    "_id": "665b2c3d4e5f6a7b8c9d0e1f",
-    "userId": "665a1b2c3d4e5f6a7b8c9d0e",
-    "name": "Research Assistant",
-    "knowledgeBase": "...",
-    "instructions": "...",
-    "tools": ["web.search", "calculator"],
-    "isActive": true,
-    "createdAt": "2024-06-01T12:00:00.000Z",
-    "updatedAt": "2024-06-01T12:00:00.000Z"
-  }
-}
-```
-
----
-
-#### `DELETE /api/agent/:id`
-
-Delete a specific agent by its MongoDB ObjectId.
-
-**URL Parameters:**
-
-| Parameter | Type     | Description                   |
-| --------- | -------- | ----------------------------- |
-| `id`      | `string` | MongoDB ObjectId of the agent |
-
-**Success Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Delete agent successfully"
+  "message": "Agent graph run's succedded.",
+  "aiMessage": "Based on the latest web research from Tavily: ..."
 }
 ```
 
@@ -609,98 +443,85 @@ Delete a specific agent by its MongoDB ObjectId.
 
 ## Database Models
 
-### User Model
+### User Schema (`User`)
+- `firebaseUId` *(String, unique, required)* — Unique identifier from Firebase Authentication.
+- `name` *(String, required)* — User's display name.
+- `email` *(String, unique, required, lowercase)* — User's email address.
+- `profilePicture` *(String)* — Profile avatar URL from Google OAuth.
+- `timestamps` *(createdAt, updatedAt)*.
 
-| Field            | Type     | Required | Unique | Description                |
-| ---------------- | -------- | -------- | ------ | -------------------------- |
-| `firebaseUId`    | `String` | ✅       | ✅     | Firebase unique identifier |
-| `name`           | `String` | ✅       | ❌     | User's display name        |
-| `email`          | `String` | ✅       | ✅     | User's email (lowercase)   |
-| `profilePicture` | `String` | ❌       | ❌     | Google profile picture URL |
-| `createdAt`      | `Date`   | auto     | ❌     | Timestamp (Mongoose)       |
-| `updatedAt`      | `Date`   | auto     | ❌     | Timestamp (Mongoose)       |
-
-### Agent Model
-
-| Field           | Type       | Required | Default | Description                       |
-| --------------- | ---------- | -------- | ------- | --------------------------------- |
-| `userId`        | `ObjectId` | ✅       | —       | Reference to User model           |
-| `name`          | `String`   | ✅       | —       | Agent display name                |
-| `knowledgeBase` | `String`   | ✅       | —       | System prompt / knowledge context |
-| `instructions`  | `String`   | ✅       | —       | Agent-specific instructions       |
-| `tools`         | `[String]` | ❌       | `[]`    | Array of enabled tool IDs         |
-| `isActive`      | `Boolean`  | ❌       | `true`  | Whether the agent is active       |
-| `createdAt`     | `Date`     | auto     | —       | Timestamp (Mongoose)              |
-| `updatedAt`     | `Date`     | auto     | —       | Timestamp (Mongoose)              |
+### Agent Schema (`Agent`)
+- `userId` *(ObjectId, ref: User, required)* — Owner of the agent.
+- `name` *(String, required, unique)* — Unique name of the agent.
+- `knowledgeBase` *(String, required)* — Persona, role, and domain boundaries.
+- `instructions` *(String, required)* — Operational guidelines and rules.
+- `tools` *(Array of Strings)* — Enabled tool identifiers (e.g. `web_search`, `calculator`).
+- `isActive` *(Boolean, default: true)* — Status flag.
+- `timestamps` *(createdAt, updatedAt)*.
 
 ---
 
-## Frontend Pages & Routes
+## Vercel Deployment Guide
 
-| Path           | Component      | Auth Required | Description                                           |
-| -------------- | -------------- | ------------- | ----------------------------------------------------- |
-| `/login`       | `Login`        | ❌            | Google sign-in page (redirects to `/` if logged in)   |
-| `/`            | `Home`         | ✅            | Main dashboard with chat workspace and agent selector |
-| `/agents`      | `Agents`       | ✅            | List all user agents                                  |
-| `/agent/new`   | `CreateAgent`  | ✅            | Create a new AI agent form                            |
-| `/integration` | `Integrations` | ✅            | MCP integrations and HITL configuration dashboard     |
+This project includes a production-ready `vercel.json` configured for a monorepo setup:
 
----
-
-## State Management
-
-The app uses **Redux Toolkit** for global state management.
-
-### Auth Slice (`authSlice.js`)
-
-| State Key     | Type             | Description                            |
-| ------------- | ---------------- | -------------------------------------- |
-| `user`        | `object \| null` | Current authenticated user             |
-| `loading`     | `boolean`        | Auth operation in progress             |
-| `error`       | `string \| null` | Last auth error message                |
-| `initialized` | `boolean`        | Whether initial auth check is complete |
-
-**Actions:** `setUser`, `setLoading`, `setError`, `setInitialized`, `logoutUser`
-
-**Selectors:** `selectUser`, `selectIsAuthenticated`, `selectAuthLoading`, `selectAuthError`, `selectAuthInitialized`
-
----
-
-## Authentication Flow
-
-```
-┌─────────┐    Firebase Google    ┌──────────┐    ID Token     ┌─────────┐
-│  User   │ ──── Sign-In ──────► │ Firebase │ ──────────────► │ Backend │
-│ (React) │                      │   Auth   │                 │ Express │
-└─────────┘                      └──────────┘                 └────┬────┘
-                                                                   │
-                                                    Verify Token via
-                                                    Firebase Admin SDK
-                                                                   │
-                                                              ┌────▼────┐
-                                                              │ MongoDB │
-                                                              │ Upsert  │
-                                                              │  User   │
-                                                              └────┬────┘
-                                                                   │
-                                                           Sign JWT &
-                                                          Set Cookie
-                                                                   │
-     ┌──────────────────── JWT Cookie (httpOnly) ◄─────────────────┘
-     │
-     ▼
-  Subsequent requests include cookie automatically
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/src/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/src/index.js"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/frontend/assets/$1"
+    },
+    {
+      "src": "/(.*\\.(?:js|css|ico|png|jpg|jpeg|svg|woff2|woff|ttf|json|webp))",
+      "dest": "/frontend/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/index.html"
+    }
+  ]
+}
 ```
 
+### Steps to Deploy on Vercel:
+1. Connect your repository to Vercel.
+2. In Vercel **Project Settings ➔ Environment Variables**, add:
+   - `MONGO_URL`
+   - `JWT_SECRET`
+   - `GROQ_API_KEY`
+   - `TAVILY_API_KEY`
+   - `VITE_FIREBASE_API_KEY`
+   - `FIREBASE_SERVICE_ACCOUNT` *(paste the entire JSON content of your `serviceAccountKey.json` as a single string)*
+3. In **Firebase Console ➔ Authentication ➔ Settings ➔ Authorized Domains**, add your Vercel deployment URL (e.g., `your-project.vercel.app`).
+4. Trigger a deployment. Vercel will build both the frontend SPA and the serverless backend API.
+
 ---
 
-## Contributing
+## Security Best Practices
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- 🚫 **Never Commit `.env` Files**: Keep your real API keys (`GROQ_API_KEY`, `TAVILY_API_KEY`, `JWT_SECRET`) strictly in your local `.env` and Vercel dashboard.
+- 🔑 **Keep `serviceAccountKey.json` Secret**: This file is excluded in `.gitignore`. Use the `FIREBASE_SERVICE_ACCOUNT` environment variable for cloud deployments.
+- 🍪 **HTTP-Only Cookies**: Authentication session tokens are stored in `httpOnly`, `sameSite` protected cookies to mitigate XSS exposure.
+- 🛡️ **HITL Enforcement**: Sensitive agent tool calls are routed through the approval node before any write actions occur.
 
 ---
 
@@ -708,8 +529,6 @@ The app uses **Redux Toolkit** for global state management.
 
 This project is licensed under the **ISC License**.
 
----
-
 <p align="center">
-  Built with ❤️ using React, Express, MongoDB & Firebase
+  Built with ❤️ by the Cortexa Team
 </p>
