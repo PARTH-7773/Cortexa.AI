@@ -7,8 +7,17 @@ function useChat() {
     }
     return response;
   };
+
+  const agentChat = async (message, agent) => {
+    const response = await chatApis.agentChatApi({ message, agent });
+    if (response.status === 200 && response.data.success) {
+      return response.data;
+    }
+    return response;
+  };
   return {
     chat,
+    agentChat,
   };
 }
 

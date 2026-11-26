@@ -5,19 +5,25 @@ import { ToolNode } from "@langchain/langgraph/prebuilt";
 
 import llm from "../../config/llm.config.js";
 import config from "../../config/ENV.config.js";
-import { SystemMessage } from "@langchain/core/messages";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { getMcpTools } from "../mcp/mcp-adapter.js";
 
 const mongoClient = new MongoClient(config.MONGO_URL);
 const checkpointer = new MongoDBSaver({
   client: mongoClient,
 });
 
-const currentDateTime = new Intl.DateTimeFormat("en-IN", {
-  timeZone: "Asia/Kolkata",
-  dateStyle: "full",
-  timeStyle: "long",
-}).format(new Date());
-const systemPrompt = `
+const createAgentGraph = async (agent, userId) => {
+  const mcpTools = await getMcpTools();
+
+  const llmWithTools = llm.bindTools(mcpTools);
+
+  const currentDateTime = new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    dateStyle: "full",
+    timeStyle: "long",
+  }).format(new Date());
+  const systemPrompt = `
     ${agent.instruction || "You are cortexa AI, a helpful personal assistant "}
 
     CURRENT DATE AND TIME:
@@ -97,28 +103,34 @@ const systemPrompt = `
     - Ask questions only when essential information is missing.   
 `;
 
-const chatNode = async (state) => {
-  const response = await llm.invoke([new SystemMessage()]);
-  return {
-    messages: [response],
+  const toolnode = new ToolNode(mcpTools);
+
+  const chatNode = async (state) => {
+    const response = await llmWithTools.invoke({
+      messages: [new HumanMessage(systemPrompt), ...state.messages],
+    });
+    return {
+      messages: [response],
+    };
   };
+
+  const actionApprovalNode = async (state) => {};
+  const routeAfterChat = async (state) => {};
+  const routeAfterApproval = async (state) => {};
+
+  const workFlow = new StateGraph(MessagesAnnotation)
+    .addNode("chatNode", chatNode)
+    .addNode("toolNode", toolnode)
+    .addNode("ActionApprovalNode", actionApprovalNode)
+    .addEdge("__start__", "chatNode")
+    .addEdge("chatNode", routeAfterChat)
+    .addEdge("toolNode", "chatNode")
+    .addConditionalEdges("ActionApprovalNode", routeAfterApproval)
+    .addEdge("chatNode", "__end__");
+
+  const ChatAgentGraph = workFlow.compile({ checkpointer });
+
+  return ChatAgentGraph;
 };
-const actionApprovalNode = async (state) => {};
-const routeAfterChat = async (state) => {};
-const routeAfterApproval = async (state) => {};
 
-const toolNode = new ToolNode();
-
-const workFlow = new StateGraph(MessagesAnnotation)
-  .addNode("chatNode", chatNode)
-  .addNode("tooNode", toolNode)
-  .addNode("ActionApprovalNode", actionApprovalNode)
-  .addEdge("__start__", "chatNode")
-  .addEdge("chatNode", routeAfterChat)
-  .addEdge("toolNode", "chatNode")
-  .addConditionalEdges("ActionApprovalNode", routeAfterApproval)
-  .addEdge("chatNode", "__end__");
-
-const ChatAgentGraph = workFlow.compile({ checkpointer });
-
-export default ChatAgentGraph;
+export default createAgentGraph;

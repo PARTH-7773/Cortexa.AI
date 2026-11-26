@@ -17,12 +17,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use(cors({
-  origin: ["https://cortexa-dev.vercel.app", "http://localhost:5173"],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
+app.use(
+  cors({
+    origin: ["https://cortexa-dev.vercel.app", "http://localhost:5173"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 app.use(cookieParser());
 app.use(express.json());
 
@@ -34,7 +36,6 @@ app.use(async (req, res, next) => {
     next(err);
   }
 });
-
 
 app.use("/api/auth", authRouter);
 app.use("/api/agent", agentRouter);

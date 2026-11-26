@@ -32,10 +32,11 @@ import { clearAgents, setSelectedAgentId } from "@/features/agent/agentSlice";
 import { useState } from "react";
 import useChat from "@/features/chat/hooks/useChat";
 import { setMessages, setNewMessage } from "@/features/chat/chatSlice";
+import { es2015 } from "globals";
 
 function NewHome() {
   const { logout } = useAuth();
-  const { chat } = useChat();
+  const { chat, agentChat } = useChat();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { messages } = useSelector((state) => state.chat);
@@ -60,27 +61,6 @@ function NewHome() {
   const darkPanel =
     "border border-white/10 bg-white/[0.04] shadow-[0_20px_60px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl";
 
-  const handleInput = async (e) => {
-    e.preventDefault();
-    try {
-      setIsSending(true)
-      const messageData = { role: "user", context: input.trim() };
-      setInput("");
-      dispatch(setNewMessage(messageData));
-      const result = await chat({ message: messageData.context});
-      dispatch(
-        setNewMessage({
-          role: "assistant",
-          context: result.aiMessage || "Something went wrong..!",
-        })
-      );
-    } catch (error) {
-      //
-    }finally{
-      setIsSending(false)
-    }
-  };
-
   async function handleLogout() {
     try {
       const result = await logout();
@@ -95,6 +75,44 @@ function NewHome() {
     }
   }
   const selectAgent = agents.find((agent) => agent._id === selectedAgentId);
+
+  const handleInput = async (e) => {
+    e.preventDefault();
+    try {
+      setIsSending(true);
+      const messageData = { role: "user", context: input.trim() };
+      setInput("");
+      dispatch(setNewMessage(messageData));
+      if (!selectAgent && selectAgent.length === 0) {
+        const result = await chat({ message: messageData.context });
+        dispatch(
+          setNewMessage({
+            role: "assistant",
+            context: result.aiMessage || "Something went wrong..!",
+          }),
+        );
+        return;
+      } else {
+        const result = await agentChat(messageData.context, selectAgent.name);
+        dispatch(
+          setNewMessage({
+            role: "assistant",
+            context: result.aiMessage || "Something went wrong..!",
+          }),
+        );
+      }
+      return;
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.statusText ||
+        error?.message ||
+        "Something went wrongagent";
+      dispatch(setNewMessage({ role: "assistant", context: message }));
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,#2b2f3a_0%,#191b21_55%,#121317_100%)] text-white">
@@ -254,7 +272,9 @@ function NewHome() {
                   <div
                     key={i}
                     className={`flex ${
-                      message.role === "user" ? "justify-end mr-4" : "justify-start"
+                      message.role === "user"
+                        ? "justify-end mr-4"
+                        : "justify-start"
                     }`}
                   >
                     {message.role === "assistant" && (
