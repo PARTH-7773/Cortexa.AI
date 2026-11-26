@@ -1,10 +1,15 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import { z } from "zod";
+import { TavilySearch } from "@langchain/tavily";
 
 const server = new McpServer({
   name: "cortexa-ai-mcp-server",
   version: "1.0.0",
+});
+
+const tool = new TavilySearch({
+  maxResults: 5,
 });
 
 server.registerTool(
