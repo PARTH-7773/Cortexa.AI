@@ -104,7 +104,7 @@ function ModernReveal({
         root: rootRef?.current || null,
         threshold: 0.12,
         rootMargin: "0px 0px -24px 0px",
-      },
+      }
     );
 
     observer.observe(el);
@@ -254,7 +254,7 @@ function AgentTiltCard({ agent, isSelected, onSelect }) {
 function Home() {
   const { logout } = useAuth();
   const { getAllAgent } = useAgent();
-  const { chat } = useChat();
+  const { chat , agentChat} = useChat();
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -266,7 +266,7 @@ function Home() {
 
   const agentsList = useMemo(
     () => (Array.isArray(reduxAgents) ? reduxAgents : []),
-    [reduxAgents],
+    [reduxAgents]
   );
 
   const [loadingAgents, setLoadingAgents] = useState(false);
@@ -293,7 +293,7 @@ function Home() {
     if (!selectedAgentId || !agentsList.length) return null;
     return (
       agentsList.find(
-        (a) => String(getAgentId(a)) === String(selectedAgentId),
+        (a) => String(getAgentId(a)) === String(selectedAgentId)
       ) || null
     );
   }, [agentsList, selectedAgentId]);
@@ -426,7 +426,7 @@ function Home() {
 
         setScrollY(currentY);
         setScrollProgress(
-          maxScroll > 0 ? Math.min(currentY / maxScroll, 1) : 0,
+          maxScroll > 0 ? Math.min(currentY / maxScroll, 1) : 0
         );
 
         if (currentY <= 24) {
@@ -479,6 +479,9 @@ function Home() {
     }
   }
 
+  const selectAgent = reduxAgents.find((agent) => agent._id === selectedAgentId);
+
+
   const sendMessage = async (rawText) => {
     const clean = rawText.trim();
     if (!clean || isSending) return;
@@ -493,16 +496,24 @@ function Home() {
       const payload = selectedAgentId
         ? { message: clean, agentId: selectedAgentId }
         : { message: clean };
-
-      const result = await chat(payload);
-
-      dispatch(
-        setNewMessage({
-          role: "assistant",
-          context:
-            result?.aiMessage || result?.message || "Something went wrong..!",
-        }),
-      );
+      if (!selectAgent && selectAgent.length === 0) {
+        const result = await chat(payload);
+        dispatch(
+          setNewMessage({
+            role: "assistant",
+            context:
+              result?.aiMessage || result?.message || "Something went wrong..!",
+          })
+        );
+      }else{
+         const result = await agentChat(clean, selectAgent.name);
+        dispatch(
+          setNewMessage({
+            role: "assistant",
+            context: result.aiMessage || "Something went wrong..!",
+          }),
+        );
+      }
     } catch (error) {
       const errMsg =
         error?.response?.data?.message ||
@@ -512,7 +523,7 @@ function Home() {
         setNewMessage({
           role: "assistant",
           context: errMsg,
-        }),
+        })
       );
     } finally {
       setIsSending(false);
@@ -913,15 +924,15 @@ function Home() {
                   {messages.map((msg, idx) => (
                     <div
                       key={msg._id || msg.id || idx}
-                      className={`animate-msg-pop flex ${
+                      className={`animate-msg-pop flex  ${
                         msg.role === "user" ? "justify-end" : "justify-start"
                       }`}
                     >
                       <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed sm:text-sm ${
+                        className={`max-w-[100%] rounded-2xl px-4 py-3 text-xs leading-relaxed sm:text-sm ${
                           msg.role === "user"
                             ? "bg-white font-medium text-zinc-950 shadow-[0_6px_24px_rgba(255,255,255,0.14)]"
-                            : "border border-white/10 bg-white/[0.06] text-zinc-200"
+                            : " text-zinc-200"
                         }`}
                       >
                         {msg.role === "assistant" ? (
