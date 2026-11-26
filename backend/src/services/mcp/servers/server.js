@@ -62,5 +62,4 @@ const main = async () => {
 
 main().catch((err) => {
   console.error("MCP server error", err);
-  process.exit(1);
 });
