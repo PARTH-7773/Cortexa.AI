@@ -94,10 +94,7 @@ const systemPrompt = `
     - Be concis and helpful.
     - Infer parameters when sufficient content is available.
     - Never substitute a natural-language promise for a tool call.
-    - Ask questions only when essential information is missing.
-
-    
-    
+    - Ask questions only when essential information is missing.   
 `;
 
 const chatNode = async (state) => {
@@ -115,11 +112,11 @@ const toolNode = new ToolNode();
 const workFlow = new StateGraph(MessagesAnnotation)
   .addNode("chatNode", chatNode)
   .addNode("tooNode", toolNode)
-  .addNode("ActinApprovalNode", actionApprovalNode)
+  .addNode("ActionApprovalNode", actionApprovalNode)
   .addEdge("__start__", "chatNode")
   .addEdge("chatNode", routeAfterChat)
   .addEdge("toolNode", "chatNode")
-  .addConditionalEdges("ActinApprovalNode", routeAfterApproval)
+  .addConditionalEdges("ActionApprovalNode", routeAfterApproval)
   .addEdge("chatNode", "__end__");
 
 const ChatAgentGraph = workFlow.compile({ checkpointer });
