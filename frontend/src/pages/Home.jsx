@@ -496,7 +496,7 @@ function Home() {
       const payload = selectedAgentId
         ? { message: clean, agentId: selectedAgentId }
         : { message: clean };
-      if (!selectAgent && selectAgent.length === 0) {
+      if (!selectAgent) {
         const result = await chat(payload);
         dispatch(
           setNewMessage({

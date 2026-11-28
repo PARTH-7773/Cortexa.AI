@@ -128,7 +128,6 @@ GENERAL RULES:
   };
 
   const routeAfterChat = (state) => {
-    console.log("State messages: ", state.messages);
     const messages = state.messages || [];
     const lastMessage = messages[messages.length - 1];
     const toolCalls = lastMessage?.tool_calls || [];

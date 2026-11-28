@@ -224,8 +224,8 @@ Ensure you have the following installed before running the project:
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/<your-username>/Automation_AI.git
-cd Automation_AI
+git clone https://github.com/PARTH-7773/Cortexa.AI.git
+cd Cortexa.AI
 ```
 
 ### 2. Backend Setup
