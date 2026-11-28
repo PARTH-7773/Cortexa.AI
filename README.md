@@ -24,6 +24,7 @@
 
 ## 📋 Table of Contents
 
+- [Documentation & Agent Guidelines](#-documentation--agent-guidelines)
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Architecture & Workflow](#architecture--workflow)
@@ -47,6 +48,17 @@
 - [Vercel Deployment Guide](#vercel-deployment-guide)
 - [Security Best Practices](#security-best-practices)
 - [License](#license)
+
+---
+
+## 📖 Documentation & Agent Guidelines
+
+To understand the core specifications and maintain consistent coding standards across development teams and AI assistants:
+
+- 📄 **[Product Requirements Document (PRD.md)](./docs/PRD.md)** — Comprehensive specification of what Cortexa is, target personas, functional requirements, data contracts, and long-term roadmap.
+- 📐 **[System Architecture & Coding Guidelines (ARCHITECTURE.md)](./docs/ARCHITECTURE.md)** — Strict rules for AI coding assistants to prevent hallucinations, route namespace mismatches, broken ESM imports, or bypassing LangGraph & MCP patterns.
+
+---
 
 ---
 
@@ -108,34 +120,36 @@
 ## Tech Stack
 
 ### Backend
-| Technology | Version | Purpose |
-|---|---|---|
-| **Express.js** | `^5.3.0` | Next-generation Web Framework & REST API |
-| **@langchain/langgraph** | `^1.7.5` | Cyclic multi-agent graph orchestrator |
-| **@langchain/groq** | `^1.3.2` | Groq cloud LLM provider integration |
-| **@langchain/tavily** | `^1.2.1` | Tavily live internet search engine integration |
-| **@langchain/mcp-adapters** | `^2.0.3` | Model Context Protocol adapter for LangChain |
-| **@modelcontextprotocol/server** | `^2.4.0` | MCP Server SDK over stdio transport |
-| **@langchain/langgraph-checkpoint-mongodb** | `^1.5.2` | Persistent thread memory storage in MongoDB |
-| **mongoose** & **mongodb** | `^9.12.0` / `^7.9.1` | MongoDB Object Data Modeling and native client |
-| **firebase-admin** | `^14.5.1` | Server-side Firebase ID token verification |
-| **jsonwebtoken** | `^9.0.3` | JWT generation & verification for auth sessions |
-| **cookie-parser** & **cors** | `^1.4.7` / `^2.8.6` | Cookie handling and Cross-Origin Resource Sharing |
-| **zod** | `^4.6.7` | Declarative schema validation |
-| **dotenv** | `^18.0.9` | Environment variable loader |
+
+| Technology                                  | Version              | Purpose                                           |
+| ------------------------------------------- | -------------------- | ------------------------------------------------- |
+| **Express.js**                              | `^5.3.0`             | Next-generation Web Framework & REST API          |
+| **@langchain/langgraph**                    | `^1.7.5`             | Cyclic multi-agent graph orchestrator             |
+| **@langchain/groq**                         | `^1.3.2`             | Groq cloud LLM provider integration               |
+| **@langchain/tavily**                       | `^1.2.1`             | Tavily live internet search engine integration    |
+| **@langchain/mcp-adapters**                 | `^2.0.3`             | Model Context Protocol adapter for LangChain      |
+| **@modelcontextprotocol/server**            | `^2.4.0`             | MCP Server SDK over stdio transport               |
+| **@langchain/langgraph-checkpoint-mongodb** | `^1.5.2`             | Persistent thread memory storage in MongoDB       |
+| **mongoose** & **mongodb**                  | `^9.12.0` / `^7.9.1` | MongoDB Object Data Modeling and native client    |
+| **firebase-admin**                          | `^14.5.1`            | Server-side Firebase ID token verification        |
+| **jsonwebtoken**                            | `^9.0.3`             | JWT generation & verification for auth sessions   |
+| **cookie-parser** & **cors**                | `^1.4.7` / `^2.8.6`  | Cookie handling and Cross-Origin Resource Sharing |
+| **zod**                                     | `^4.6.7`             | Declarative schema validation                     |
+| **dotenv**                                  | `^18.0.9`            | Environment variable loader                       |
 
 ### Frontend
-| Technology | Version | Purpose |
-|---|---|---|
-| **React** & **React DOM** | `^19.3.1` | Modern concurrent UI library |
-| **Vite** | `^8.3.6` | Next-generation frontend build tool |
-| **Tailwind CSS** | `^4.3.5` | Modern utility-first styling engine |
-| **React Router DOM** | `^7.18.5` | Client-side routing and protected navigations |
-| **@reduxjs/toolkit** & **react-redux** | `^2.14.0` / `^9.3.1` | Predictable centralized state management |
-| **Firebase** | `^13.3.0` | Firebase Web Client SDK (Google Authentication) |
-| **shadcn** & **@base-ui/react** | `^4.23.0` / `^1.9.0` | Accessible, customizable UI primitives |
-| **lucide-react** & **react-icons** | `^1.72.0` / `^5.7.0` | Icon sets |
-| **axios** | `^1.21.1` | Promise-based HTTP client |
+
+| Technology                             | Version              | Purpose                                         |
+| -------------------------------------- | -------------------- | ----------------------------------------------- |
+| **React** & **React DOM**              | `^19.3.1`            | Modern concurrent UI library                    |
+| **Vite**                               | `^8.3.6`             | Next-generation frontend build tool             |
+| **Tailwind CSS**                       | `^4.3.5`             | Modern utility-first styling engine             |
+| **React Router DOM**                   | `^7.18.5`            | Client-side routing and protected navigations   |
+| **@reduxjs/toolkit** & **react-redux** | `^2.14.0` / `^9.3.1` | Predictable centralized state management        |
+| **Firebase**                           | `^13.3.0`            | Firebase Web Client SDK (Google Authentication) |
+| **shadcn** & **@base-ui/react**        | `^4.23.0` / `^1.9.0` | Accessible, customizable UI primitives          |
+| **lucide-react** & **react-icons**     | `^1.72.0` / `^5.7.0` | Icon sets                                       |
+| **axios**                              | `^1.21.1`            | Promise-based HTTP client                       |
 
 ---
 
@@ -249,6 +263,7 @@ Place your Firebase Admin private key at `backend/serviceAccountKey.json` (or se
 # Start backend in development mode
 npm run dev
 ```
+
 The backend server runs at **`http://localhost:5000`** (or your configured `PORT`).
 
 ### 3. Frontend Setup
@@ -268,6 +283,7 @@ cp .env.example .env
 # Start frontend development server
 npm run dev
 ```
+
 The frontend dev server runs at **`http://localhost:5173`**.
 
 ### 4. Firebase Configuration
@@ -291,16 +307,17 @@ The frontend dev server runs at **`http://localhost:5173`**.
 
 Reference file: [`backend/.env.example`](file:///e:/Development/import-with-Backend/Agentic%20AI/Project_Agentic_AI/Automation_AI/backend/.env.example)
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `PORT` | No | `5000` | Local HTTP server port |
-| `MONGO_URL` | **Yes** | — | MongoDB connection string (Local or MongoDB Atlas) |
-| `JWT_SECRET` | **Yes** | — | Secret string for signing auth session JWT tokens |
-| `GROQ_API_KEY` | **Yes** | — | API key for Groq LLM inference (`ChatGroq`) |
-| `TAVILY_API_KEY` | **Yes** | — | API key for real-time web search in MCP server |
-| `FIREBASE_SERVICE_ACCOUNT` | Cloud only | — | Full JSON string of `serviceAccountKey.json` for Vercel/cloud hosting |
+| Variable                   | Required   | Default | Description                                                           |
+| -------------------------- | ---------- | ------- | --------------------------------------------------------------------- |
+| `PORT`                     | No         | `5000`  | Local HTTP server port                                                |
+| `MONGO_URL`                | **Yes**    | —       | MongoDB connection string (Local or MongoDB Atlas)                    |
+| `JWT_SECRET`               | **Yes**    | —       | Secret string for signing auth session JWT tokens                     |
+| `GROQ_API_KEY`             | **Yes**    | —       | API key for Groq LLM inference (`ChatGroq`)                           |
+| `TAVILY_API_KEY`           | **Yes**    | —       | API key for real-time web search in MCP server                        |
+| `FIREBASE_SERVICE_ACCOUNT` | Cloud only | —       | Full JSON string of `serviceAccountKey.json` for Vercel/cloud hosting |
 
 Example `backend/.env`:
+
 ```env
 PORT=5000
 MONGO_URL=mongodb://localhost:27017/cortexa_ai
@@ -313,12 +330,13 @@ TAVILY_API_KEY=tvly-your_tavily_api_key_here
 
 Reference file: [`frontend/.env.example`](file:///e:/Development/import-with-Backend/Agentic%20AI/Project_Agentic_AI/Automation_AI/frontend/.env.example)
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `VITE_FIREBASE_API_KEY` | **Yes** | — | Firebase Web API Key for client-side Google OAuth popup |
-| `VITE_SERVER_URL` | No | `/api` | Backend API Base URL (`http://localhost:5000/api` for local) |
+| Variable                | Required | Default | Description                                                  |
+| ----------------------- | -------- | ------- | ------------------------------------------------------------ |
+| `VITE_FIREBASE_API_KEY` | **Yes**  | —       | Firebase Web API Key for client-side Google OAuth popup      |
+| `VITE_SERVER_URL`       | No       | `/api`  | Backend API Base URL (`http://localhost:5000/api` for local) |
 
 Example `frontend/.env`:
+
 ```env
 VITE_FIREBASE_API_KEY=AIzaSy_your_firebase_api_key_here
 VITE_SERVER_URL=http://localhost:5000/api
@@ -329,23 +347,26 @@ VITE_SERVER_URL=http://localhost:5000/api
 ## Available Scripts
 
 ### Root Monorepo
-| Command | Description |
-|---|---|
+
+| Command         | Description                                                     |
+| --------------- | --------------------------------------------------------------- |
 | `npm run build` | Builds the frontend project (`npm --prefix frontend run build`) |
 
 ### Backend (`/backend`)
-| Command | Description |
-|---|---|
+
+| Command       | Description                                               |
+| ------------- | --------------------------------------------------------- |
 | `npm run dev` | Runs backend with `nodemon` for auto-reloading on changes |
-| `npm start` | Runs backend production server with `node server.js` |
+| `npm start`   | Runs backend production server with `node server.js`      |
 
 ### Frontend (`/frontend`)
-| Command | Description |
-|---|---|
-| `npm run dev` | Starts Vite HMR dev server |
-| `npm run build` | Generates production build in `dist/` |
-| `npm run preview` | Previews production build locally |
-| `npm run lint` | Runs ESLint to check for code issues |
+
+| Command           | Description                           |
+| ----------------- | ------------------------------------- |
+| `npm run dev`     | Starts Vite HMR dev server            |
+| `npm run build`   | Generates production build in `dist/` |
+| `npm run preview` | Previews production build locally     |
+| `npm run lint`    | Runs ESLint to check for code issues  |
 
 ---
 
@@ -355,21 +376,25 @@ Base URL: `http://localhost:5000/api` (Local) or `/api` (Production)
 
 ### Authentication Endpoints (`/api/auth`)
 
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `GET` | `/api/auth/health` | No | Server health check endpoint |
-| `POST` | `/api/auth/login` | No | Verifies Firebase ID token & sets session cookie |
-| `GET` | `/api/auth/logout` | No | Clears session cookie and logs user out |
-| `GET` | `/api/auth/me` | **Yes** | Retrieves currently authenticated user profile |
+| Method | Endpoint           | Auth Required | Description                                      |
+| ------ | ------------------ | ------------- | ------------------------------------------------ |
+| `GET`  | `/api/auth/health` | No            | Server health check endpoint                     |
+| `POST` | `/api/auth/login`  | No            | Verifies Firebase ID token & sets session cookie |
+| `GET`  | `/api/auth/logout` | No            | Clears session cookie and logs user out          |
+| `GET`  | `/api/auth/me`     | **Yes**       | Retrieves currently authenticated user profile   |
 
 #### `POST /api/auth/login`
+
 **Request Body:**
+
 ```json
 {
   "token": "eyJhbGciOiJSUzI1NiIs..."
 }
 ```
+
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -390,15 +415,17 @@ Base URL: `http://localhost:5000/api` (Local) or `/api` (Production)
 
 All agent routes require authentication via session cookie.
 
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `POST` | `/api/agent/create` | **Yes** | Creates a new agent with instructions & tools |
-| `GET` | `/api/agent/all` | **Yes** | Fetches all agents belonging to the logged-in user |
-| `GET` | `/api/agent/:id` | **Yes** | Fetches agent by ID |
-| `DELETE` | `/api/agent/:id` | **Yes** | Deletes agent by ID |
+| Method   | Endpoint            | Auth Required | Description                                        |
+| -------- | ------------------- | ------------- | -------------------------------------------------- |
+| `POST`   | `/api/agent/create` | **Yes**       | Creates a new agent with instructions & tools      |
+| `GET`    | `/api/agent/all`    | **Yes**       | Fetches all agents belonging to the logged-in user |
+| `GET`    | `/api/agent/:id`    | **Yes**       | Fetches agent by ID                                |
+| `DELETE` | `/api/agent/:id`    | **Yes**       | Deletes agent by ID                                |
 
 #### `POST /api/agent/create`
+
 **Request Body:**
+
 ```json
 {
   "name": "Research Analyst",
@@ -414,15 +441,17 @@ All agent routes require authentication via session cookie.
 
 All AI invocation routes require authentication via session cookie.
 
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `POST` | `/api/ai/chat` | **Yes** | General conversational chat graph with MongoDB memory |
-| `POST` | `/api/ai/agent` | **Yes** | Executes customized agent LangGraph with MCP tools |
+| Method | Endpoint        | Auth Required | Description                                           |
+| ------ | --------------- | ------------- | ----------------------------------------------------- |
+| `POST` | `/api/ai/chat`  | **Yes**       | General conversational chat graph with MongoDB memory |
+| `POST` | `/api/ai/agent` | **Yes**       | Executes customized agent LangGraph with MCP tools    |
 
 #### `POST /api/ai/agent`
+
 Executes the specific agent's LangGraph StateGraph, binding MCP tools and preserving per-user conversation threads in MongoDB.
 
 **Request Body:**
+
 ```json
 {
   "agent": "Research Analyst",
@@ -431,6 +460,7 @@ Executes the specific agent's LangGraph StateGraph, binding MCP tools and preser
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -444,20 +474,22 @@ Executes the specific agent's LangGraph StateGraph, binding MCP tools and preser
 ## Database Models
 
 ### User Schema (`User`)
-- `firebaseUId` *(String, unique, required)* — Unique identifier from Firebase Authentication.
-- `name` *(String, required)* — User's display name.
-- `email` *(String, unique, required, lowercase)* — User's email address.
-- `profilePicture` *(String)* — Profile avatar URL from Google OAuth.
-- `timestamps` *(createdAt, updatedAt)*.
+
+- `firebaseUId` _(String, unique, required)_ — Unique identifier from Firebase Authentication.
+- `name` _(String, required)_ — User's display name.
+- `email` _(String, unique, required, lowercase)_ — User's email address.
+- `profilePicture` _(String)_ — Profile avatar URL from Google OAuth.
+- `timestamps` _(createdAt, updatedAt)_.
 
 ### Agent Schema (`Agent`)
-- `userId` *(ObjectId, ref: User, required)* — Owner of the agent.
-- `name` *(String, required, unique)* — Unique name of the agent.
-- `knowledgeBase` *(String, required)* — Persona, role, and domain boundaries.
-- `instructions` *(String, required)* — Operational guidelines and rules.
-- `tools` *(Array of Strings)* — Enabled tool identifiers (e.g. `web_search`, `calculator`).
-- `isActive` *(Boolean, default: true)* — Status flag.
-- `timestamps` *(createdAt, updatedAt)*.
+
+- `userId` _(ObjectId, ref: User, required)_ — Owner of the agent.
+- `name` _(String, required, unique)_ — Unique name of the agent.
+- `knowledgeBase` _(String, required)_ — Persona, role, and domain boundaries.
+- `instructions` _(String, required)_ — Operational guidelines and rules.
+- `tools` _(Array of Strings)_ — Enabled tool identifiers (e.g. `web_search`, `calculator`).
+- `isActive` _(Boolean, default: true)_ — Status flag.
+- `timestamps` _(createdAt, updatedAt)_.
 
 ---
 
@@ -503,6 +535,7 @@ This project includes a production-ready `vercel.json` configured for a monorepo
 ```
 
 ### Steps to Deploy on Vercel:
+
 1. Connect your repository to Vercel.
 2. In Vercel **Project Settings ➔ Environment Variables**, add:
    - `MONGO_URL`
@@ -510,7 +543,7 @@ This project includes a production-ready `vercel.json` configured for a monorepo
    - `GROQ_API_KEY`
    - `TAVILY_API_KEY`
    - `VITE_FIREBASE_API_KEY`
-   - `FIREBASE_SERVICE_ACCOUNT` *(paste the entire JSON content of your `serviceAccountKey.json` as a single string)*
+   - `FIREBASE_SERVICE_ACCOUNT` _(paste the entire JSON content of your `serviceAccountKey.json` as a single string)_
 3. In **Firebase Console ➔ Authentication ➔ Settings ➔ Authorized Domains**, add your Vercel deployment URL (e.g., `your-project.vercel.app`).
 4. Trigger a deployment. Vercel will build both the frontend SPA and the serverless backend API.
 
